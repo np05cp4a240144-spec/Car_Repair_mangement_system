@@ -136,7 +136,7 @@ const getAllBookings = async (req, res) => {
 
 const updateBookingStatus = async (req, res) => {
     const { id } = req.params;
-    const { status, amount, mechanicId, progress, stage, isPaid } = req.body;
+    const { status, amount, mechanicId, progress, stage, isPaid, time, service, vehicleId } = req.body;
 
     try {
         const appointment = await prisma.appointment.findUnique({
@@ -155,6 +155,11 @@ const updateBookingStatus = async (req, res) => {
             return res.status(403).json({ error: 'Not authorized' });
         }
 
+        const isCustomerRescheduleAttempt = req.user.role === 'USER' && (time !== undefined || service !== undefined || vehicleId !== undefined);
+        if (isCustomerRescheduleAttempt && appointment.status !== 'Pending') {
+            return res.status(400).json({ error: 'Only pending bookings can be rescheduled' });
+        }
+
         const updatedAppointment = await prisma.appointment.update({
             where: { id: parseInt(id) },
             data: { 
@@ -163,7 +168,10 @@ const updateBookingStatus = async (req, res) => {
                 mechanicId: mechanicId !== undefined ? (mechanicId ? parseInt(mechanicId) : null) : appointment.mechanicId,
                 progress: progress !== undefined ? parseInt(progress) : appointment.progress,
                 stage: stage || appointment.stage,
-                isPaid: isPaid !== undefined ? Boolean(isPaid) : appointment.isPaid
+                isPaid: isPaid !== undefined ? Boolean(isPaid) : appointment.isPaid,
+                time: time !== undefined ? String(time) : appointment.time,
+                service: service !== undefined ? String(service) : appointment.service,
+                vehicleId: vehicleId !== undefined ? parseInt(vehicleId) : appointment.vehicleId
             },
             include: {
                 user: { select: { name: true } },

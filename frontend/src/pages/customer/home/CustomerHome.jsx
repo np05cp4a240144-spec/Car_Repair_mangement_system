@@ -172,7 +172,12 @@ const CustomerHome = () => {
                                 <div className="text-[12px] text-[#756F65]">{new Date(upcomingJob.createdAt).toLocaleDateString()} · {upcomingJob.time} · {upcomingJob.mechanic?.name}</div>
                             </div>
                             <div className="flex gap-2">
-                                <button className="px-3.5 py-2 rounded-lg text-[12px] font-semibold bg-[#F2F0EB] border-[1.5px] border-[#E4E1DA] text-[#756F65] hover:border-[#E8470A] hover:text-[#E8470A] transition-all">Reschedule</button>
+                                <button
+                                    className="px-3.5 py-2 rounded-lg text-[12px] font-semibold bg-[#F2F0EB] border-[1.5px] border-[#E4E1DA] text-[#756F65] hover:border-[#E8470A] hover:text-[#E8470A] transition-all"
+                                    onClick={() => navigate('/customer/book', { state: { rescheduleBooking: upcomingJob } })}
+                                >
+                                    Reschedule
+                                </button>
                             </div>
                         </div>
                     </>

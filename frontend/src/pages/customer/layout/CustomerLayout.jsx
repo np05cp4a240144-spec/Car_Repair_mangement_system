@@ -1,14 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { AlertTriangle, Bell, CheckCircle2, Clock3 } from 'lucide-react';
+import api from '../../../api/axios';
 import './CustomerLayout.css';
 
 const CustomerLayout = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useAuth();
     const [showDropdown, setShowDropdown] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [notificationsOpen, setNotificationsOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [dismissedNotificationIds, setDismissedNotificationIds] = useState([]);
     const dropdownRef = useRef(null);
+    const bellRef = useRef(null);
 
     const handleLogout = () => {
         logout();
@@ -34,6 +41,109 @@ const CustomerLayout = () => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const [unreadRes, bookingsRes] = await Promise.all([
+                    api.get('/messages/unread-count'),
+                    api.get('/bookings')
+                ]);
+
+                const unreadMessages = unreadRes.data?.unreadCount || 0;
+                const bookings = bookingsRes.data || [];
+
+                const pendingCount = bookings.filter((job) => job.status === 'Pending').length;
+                const activeCount = bookings.filter((job) => job.status === 'In Progress').length;
+                const readyForPickupCount = bookings.filter(
+                    (job) => job.stage === 'Ready for Pickup' && job.status !== 'Cancelled'
+                ).length;
+
+                const nextNotifications = [];
+
+                if (unreadMessages > 0) {
+                    nextNotifications.push({
+                        id: 'unread-messages',
+                        type: 'warning',
+                        title: 'Unread messages',
+                        message: `You have ${unreadMessages} unread message(s) from the service team.`,
+                        route: '/customer/chat'
+                    });
+                }
+
+                if (pendingCount > 0) {
+                    nextNotifications.push({
+                        id: 'pending-bookings',
+                        type: 'info',
+                        title: 'Booking pending',
+                        message: `${pendingCount} booking(s) are waiting for service start.`,
+                        route: '/customer/history'
+                    });
+                }
+
+                if (activeCount > 0) {
+                    nextNotifications.push({
+                        id: 'active-repairs',
+                        type: 'info',
+                        title: 'Repair in progress',
+                        message: `${activeCount} vehicle(s) are currently being worked on.`,
+                        route: '/customer/tracking'
+                    });
+                }
+
+                if (readyForPickupCount > 0) {
+                    nextNotifications.push({
+                        id: 'ready-pickup',
+                        type: 'success',
+                        title: 'Ready for pickup',
+                        message: `${readyForPickupCount} vehicle(s) are ready for pickup.`,
+                        route: '/customer/tracking'
+                    });
+                }
+
+                setNotifications(nextNotifications);
+            } catch (error) {
+                console.error('Error fetching customer notifications:', error);
+                setNotifications([]);
+            }
+        };
+
+        fetchNotifications();
+        const intervalId = setInterval(fetchNotifications, 15000);
+        return () => clearInterval(intervalId);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (bellRef.current && !bellRef.current.contains(event.target)) {
+                setNotificationsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const unreadCount = useMemo(
+        () => notifications.filter((item) => !dismissedNotificationIds.includes(item.id)).length,
+        [notifications, dismissedNotificationIds]
+    );
+
+    const markAllAsRead = () => {
+        setDismissedNotificationIds(notifications.map((item) => item.id));
+    };
+
+    const handleNotificationClick = (item) => {
+        setDismissedNotificationIds((prev) => (prev.includes(item.id) ? prev : [...prev, item.id]));
+        setNotificationsOpen(false);
+        if (item.route) navigate(item.route);
+    };
+
+    const renderNotificationIcon = (type) => {
+        if (type === 'warning') return <AlertTriangle size={14} />;
+        if (type === 'success') return <CheckCircle2 size={14} />;
+        return <Clock3 size={14} />;
+    };
 
     return (
         <div className="customer-layout">
@@ -73,6 +183,48 @@ const CustomerLayout = () => {
 
                     <div className="customer-layout__header-clock">
                         {currentTime.toLocaleTimeString()}
+                    </div>
+
+                    <div className="customer-layout__alerts" ref={bellRef}>
+                        <button
+                            className="customer-layout__bell-btn"
+                            onClick={() => setNotificationsOpen((prev) => !prev)}
+                            aria-label="Toggle notifications"
+                        >
+                            <Bell size={18} />
+                            {unreadCount > 0 && <span className="customer-layout__bell-badge">{unreadCount}</span>}
+                        </button>
+
+                        {notificationsOpen && (
+                            <div className="customer-layout__notification-panel">
+                                <div className="customer-layout__notification-header">
+                                    <span>Notifications</span>
+                                    <button className="customer-layout__notification-read-btn" onClick={markAllAsRead}>Mark all read</button>
+                                </div>
+
+                                <div className="customer-layout__notification-list">
+                                    {notifications.length === 0 && (
+                                        <div className="customer-layout__notification-empty">No notifications right now.</div>
+                                    )}
+
+                                    {notifications.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            className="customer-layout__notification-item"
+                                            onClick={() => handleNotificationClick(item)}
+                                        >
+                                            <span className={`customer-layout__notification-icon customer-layout__notification-icon--${item.type}`}>
+                                                {renderNotificationIcon(item.type)}
+                                            </span>
+                                            <div className="customer-layout__notification-copy">
+                                                <div className="customer-layout__notification-title">{item.title}</div>
+                                                <div className="customer-layout__notification-message">{item.message}</div>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="customer-layout__profile-wrap" ref={dropdownRef}>

@@ -1,10 +1,11 @@
 import './CustomerBooking.css';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../../api/axios';
 
 const CustomerBooking = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [vehicles, setVehicles] = useState([]);
@@ -13,6 +14,10 @@ const CustomerBooking = () => {
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date().getDate() + 1);
     const [selectedTime, setSelectedTime] = useState('9:00 AM');
+    const hasInitializedReschedule = useRef(false);
+
+    const rescheduleBooking = location.state?.rescheduleBooking || null;
+    const isRescheduleMode = useMemo(() => Boolean(rescheduleBooking?.id), [rescheduleBooking]);
 
     const today = new Date();
     const currentMonth = today.toLocaleString('default', { month: 'long' });
@@ -23,16 +28,49 @@ const CustomerBooking = () => {
         const fetchVehicles = async () => {
             try {
                 const response = await api.get('/customer/profile');
-                setVehicles(response.data.vehicles || []);
-                if (response.data.vehicles?.length > 0) {
-                    setSelectedVehicle(response.data.vehicles[0]);
+                const userVehicles = response.data.vehicles || [];
+                setVehicles(userVehicles);
+
+                if (userVehicles.length > 0) {
+                    if (isRescheduleMode && rescheduleBooking?.vehicleId) {
+                        const matchingVehicle = userVehicles.find((v) => v.id === rescheduleBooking.vehicleId);
+                        setSelectedVehicle(matchingVehicle || userVehicles[0]);
+                    } else {
+                        setSelectedVehicle(userVehicles[0]);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching vehicles:', error);
             }
         };
         fetchVehicles();
-    }, []);
+    }, [isRescheduleMode, rescheduleBooking]);
+
+    useEffect(() => {
+        if (!isRescheduleMode || hasInitializedReschedule.current) return;
+
+        const parsedServices = String(rescheduleBooking.service || '')
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        if (parsedServices.length > 0) {
+            setSelectedServices(parsedServices);
+        }
+
+        const [datePartRaw, timePartRaw] = String(rescheduleBooking.time || '').split('·').map((part) => part.trim());
+        const parsedDate = datePartRaw ? new Date(datePartRaw) : null;
+        if (parsedDate && !Number.isNaN(parsedDate.getTime())) {
+            setSelectedDate(parsedDate.getDate());
+        }
+
+        if (timePartRaw) {
+            setSelectedTime(timePartRaw);
+        }
+
+        setStep(3);
+        hasInitializedReschedule.current = true;
+    }, [isRescheduleMode, rescheduleBooking]);
 
     const services = [
         { name: 'Full Service', icon: '🔧', desc: 'All major systems checked. Ideal for every 10,000 km' },
@@ -70,12 +108,18 @@ const CustomerBooking = () => {
                 amount: parseFloat(calculateTotal())
             };
 
-            await api.post('/bookings', bookingData);
-            alert("Booking confirmed! We've assigned a specialist for your service.");
-            navigate('/customer/tracking');
+            if (isRescheduleMode) {
+                await api.put(`/bookings/${rescheduleBooking.id}`, bookingData);
+                alert('Booking rescheduled successfully.');
+                navigate('/customer/history');
+            } else {
+                await api.post('/bookings', bookingData);
+                alert("Booking confirmed! We've assigned a specialist for your service.");
+                navigate('/customer/tracking');
+            }
         } catch (error) {
             console.error('Booking error:', error);
-            alert(error.response?.data?.error || 'Failed to confirm booking. Please try again.');
+            alert(error.response?.data?.error || `Failed to ${isRescheduleMode ? 'reschedule' : 'confirm'} booking. Please try again.`);
         } finally {
             setLoading(false);
         }
@@ -207,7 +251,7 @@ const CustomerBooking = () => {
 
                 {step === 4 && (
                     <div className="customer-booking-step-panel">
-                        <div className="customer-booking-section-title">Review your booking</div>
+                        <div className="customer-booking-section-title">{isRescheduleMode ? 'Review your reschedule' : 'Review your booking'}</div>
                         <div className="customer-booking-review-card">
                             <div className="customer-booking-review-strip"></div>
                             <div className="customer-booking-review-list">
@@ -230,7 +274,7 @@ const CustomerBooking = () => {
                         <div className="customer-booking-action-row">
                             <button onClick={() => setStep(3)} className="customer-booking-secondary-button">← Edit</button>
                             <button disabled={loading} className="customer-booking-confirm-button" onClick={confirmBk}>
-                                {loading ? 'Confirming...' : '✅ Confirm Booking'}
+                                {loading ? (isRescheduleMode ? 'Saving...' : 'Confirming...') : (isRescheduleMode ? '✅ Save New Time' : '✅ Confirm Booking')}
                             </button>
                         </div>
                     </div>
