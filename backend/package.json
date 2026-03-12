@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "db:migrate": "prisma migrate dev --config prisma/prisma.config.ts",
+    "db:generate": "prisma generate --config prisma/prisma.config.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
