@@ -80,7 +80,8 @@ const AdminAppointments = () => {
             partsTotal: app?.invoice?.partsTotal || 0,
             laborCost: app?.invoice?.laborCost || Math.max((app?.amount || 0) - (app?.invoice?.partsTotal || 0), 0),
             tax: app?.invoice?.tax || 0,
-            totalAmount: app?.invoice?.totalAmount || getAppointmentAmount(app)
+            totalAmount: app?.invoice?.totalAmount || getAppointmentAmount(app),
+            parts: app?.parts || app?.invoice?.appointment?.parts || []
         };
 
         setSelectedInvoice(fallbackInvoice);

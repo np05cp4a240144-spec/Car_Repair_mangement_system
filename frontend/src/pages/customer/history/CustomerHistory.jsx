@@ -64,7 +64,8 @@ const CustomerHistory = () => {
             partsTotal: booking?.invoice?.partsTotal || 0,
             laborCost: booking?.invoice?.laborCost || Math.max((booking?.amount || 0) - ((booking?.invoice?.partsTotal || 0)), 0),
             tax: booking?.invoice?.tax || 0,
-            totalAmount: booking?.invoice?.totalAmount || calculateTotal(booking)
+            totalAmount: booking?.invoice?.totalAmount || calculateTotal(booking),
+            parts: booking?.parts || booking?.invoice?.appointment?.parts || []
         };
 
         setSelectedInvoice(fallbackInvoice);

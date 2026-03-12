@@ -1,6 +1,6 @@
 const axios = require('axios');
 const prisma = require('../config/db');
-const { sendConfirmationEmail } = require('../utils/emailUtil');
+const { sendPaymentReceivedEmail } = require('../utils/emailUtil');
 
 // In-memory pending parts payments keyed by Khalti pidx
 const pendingPartPayments = new Map();
@@ -204,6 +204,27 @@ const verifyKhaltiPayment = async (req, res) => {
 
             pendingPartPayments.delete(pidx);
 
+            try {
+                const paidUser = await prisma.user.findUnique({
+                    where: { id: pending.userId },
+                    select: { email: true, name: true }
+                });
+
+                if (paidUser?.email) {
+                    await sendPaymentReceivedEmail(
+                        paidUser.email,
+                        paidUser.name || 'Customer',
+                        {
+                            mode: 'parts',
+                            amount: Number(response.data.total_amount || 0) / 100,
+                            pidx
+                        }
+                    );
+                }
+            } catch (emailError) {
+                console.error('Parts payment email send failed:', emailError.message);
+            }
+
             return res.json({
                 success: true,
                 message: 'Parts payment verified and stock updated',
@@ -226,12 +247,21 @@ const verifyKhaltiPayment = async (req, res) => {
             });
             
             // Send payment confirmation email
-            if (updatedAppointment && updatedAppointment.user && updatedAppointment.user.email) {
-                sendConfirmationEmail(
-                    updatedAppointment.user.email, 
-                    updatedAppointment.user.name || 'Customer', 
-                    updatedAppointment
-                );
+            if (updatedAppointment?.user?.email) {
+                try {
+                    await sendPaymentReceivedEmail(
+                        updatedAppointment.user.email,
+                        updatedAppointment.user.name || 'Customer',
+                        {
+                            mode: 'appointment',
+                            amount: Number(response.data.total_amount || 0) / 100,
+                            pidx,
+                            reference: response.data.transaction_id || pidx
+                        }
+                    );
+                } catch (emailError) {
+                    console.error('Appointment payment email send failed:', emailError.message);
+                }
             }
             
             return res.json({ success: true, message: 'Payment verified and updated', data: response.data });
