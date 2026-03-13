@@ -2,9 +2,6 @@ const axios = require('axios');
 const prisma = require('../config/db');
 const { sendPaymentReceivedEmail } = require('../utils/emailUtil');
 
-// In-memory pending parts payments keyed by Khalti pidx
-const pendingPartPayments = new Map();
-
 const initiateKhaltiPayment = async (req, res) => {
     const { appointmentId, mode, items } = req.body;
     try {
@@ -67,11 +64,21 @@ const initiateKhaltiPayment = async (req, res) => {
             });
 
             if (response.data?.pidx) {
-                pendingPartPayments.set(response.data.pidx, {
-                    userId: req.user.id,
-                    items: normalizedItems,
-                    expectedAmount: amountInPaisa,
-                    createdAt: Date.now()
+                await prisma.pendingPartPayment.upsert({
+                    where: { pidx: response.data.pidx },
+                    update: {
+                        userId: req.user.id,
+                        items: normalizedItems,
+                        expectedAmount: amountInPaisa,
+                        status: 'PENDING'
+                    },
+                    create: {
+                        pidx: response.data.pidx,
+                        userId: req.user.id,
+                        items: normalizedItems,
+                        expectedAmount: amountInPaisa,
+                        status: 'PENDING'
+                    }
                 });
             }
 
@@ -146,63 +153,111 @@ const verifyKhaltiPayment = async (req, res) => {
         });
 
         if (response.data.status === 'Completed' && mode === 'parts') {
-            const pending = pendingPartPayments.get(pidx);
+            const pending = await prisma.pendingPartPayment.findUnique({
+                where: { pidx }
+            });
+
             if (!pending) {
-                return res.status(400).json({ success: false, message: 'Parts payment session expired. Please try again.' });
+                return res.status(400).json({ success: false, message: 'Parts payment record not found. Please contact support with your transaction ID.' });
+            }
+
+            if (pending.status === 'COMPLETED') {
+                return res.json({
+                    success: true,
+                    message: 'Parts payment already verified',
+                    mode: 'parts',
+                    data: response.data
+                });
+            }
+
+            if (pending.status !== 'PENDING') {
+                return res.status(409).json({ success: false, message: 'Payment is being processed. Please refresh in a moment.' });
             }
 
             if (Number(response.data.total_amount || 0) !== Number(pending.expectedAmount || 0)) {
                 return res.status(400).json({ success: false, message: 'Amount mismatch during verification.' });
             }
 
-            const stockResult = await prisma.$transaction(async (tx) => {
-                const partIds = [...new Set(pending.items.map((row) => row.partId))];
-                const parts = await tx.part.findMany({ where: { id: { in: partIds } } });
-                const partMap = new Map(parts.map((part) => [part.id, part]));
-                const updatedItems = [];
-
-                for (const row of pending.items) {
-                    const part = partMap.get(row.partId);
-                    if (!part) {
-                        throw new Error(`Part #${row.partId} not found`);
-                    }
-                    if ((part.stock || 0) < row.quantity) {
-                        throw new Error(`Insufficient stock for ${part.name}`);
-                    }
-
-                    const newStock = (part.stock || 0) - row.quantity;
-                    let nextStatus = 'OK';
-                    if (newStock <= (part.minStock || 5)) nextStatus = 'Low';
-                    if (newStock <= 2) nextStatus = 'Critical';
-
-                    await tx.part.update({
-                        where: { id: part.id },
-                        data: {
-                            stock: newStock,
-                            status: nextStatus,
-                            logs: {
-                                create: {
-                                    type: 'Stock Out',
-                                    amount: row.quantity,
-                                    notes: `Customer purchase via Khalti (pidx: ${pidx})`,
-                                    userId: pending.userId
-                                }
-                            }
-                        }
-                    });
-
-                    updatedItems.push({
-                        partId: part.id,
-                        name: part.name,
-                        quantity: row.quantity,
-                        stockAfter: newStock
-                    });
-                }
-
-                return updatedItems;
+            const lock = await prisma.pendingPartPayment.updateMany({
+                where: { pidx, status: 'PENDING' },
+                data: { status: 'PROCESSING' }
             });
 
-            pendingPartPayments.delete(pidx);
+            if (lock.count === 0) {
+                const latest = await prisma.pendingPartPayment.findUnique({ where: { pidx } });
+                if (latest?.status === 'COMPLETED') {
+                    return res.json({
+                        success: true,
+                        message: 'Parts payment already verified',
+                        mode: 'parts',
+                        data: response.data
+                    });
+                }
+                return res.status(409).json({ success: false, message: 'Payment is already being processed.' });
+            }
+
+            const pendingItems = Array.isArray(pending.items) ? pending.items : [];
+
+            let stockResult;
+            try {
+                stockResult = await prisma.$transaction(async (tx) => {
+                    const partIds = [...new Set(pendingItems.map((row) => row.partId))];
+                    const parts = await tx.part.findMany({ where: { id: { in: partIds } } });
+                    const partMap = new Map(parts.map((part) => [part.id, part]));
+                    const updatedItems = [];
+
+                    for (const row of pendingItems) {
+                        const part = partMap.get(row.partId);
+                        if (!part) {
+                            throw new Error(`Part #${row.partId} not found`);
+                        }
+                        if ((part.stock || 0) < row.quantity) {
+                            throw new Error(`Insufficient stock for ${part.name}`);
+                        }
+
+                        const newStock = (part.stock || 0) - row.quantity;
+                        let nextStatus = 'OK';
+                        if (newStock <= (part.minStock || 5)) nextStatus = 'Low';
+                        if (newStock <= 2) nextStatus = 'Critical';
+
+                        await tx.part.update({
+                            where: { id: part.id },
+                            data: {
+                                stock: newStock,
+                                status: nextStatus,
+                                logs: {
+                                    create: {
+                                        type: 'Stock Out',
+                                        amount: row.quantity,
+                                        notes: `Customer purchase via Khalti (pidx: ${pidx})`,
+                                        userId: pending.userId
+                                    }
+                                }
+                            }
+                        });
+
+                        updatedItems.push({
+                            partId: part.id,
+                            name: part.name,
+                            quantity: row.quantity,
+                            stockAfter: newStock
+                        });
+                    }
+
+                    await tx.pendingPartPayment.update({
+                        where: { pidx },
+                        data: { status: 'COMPLETED' }
+                    });
+
+                    return updatedItems;
+                });
+            } catch (stockError) {
+                await prisma.pendingPartPayment.updateMany({
+                    where: { pidx, status: 'PROCESSING' },
+                    data: { status: 'PENDING' }
+                });
+                throw stockError;
+            }
 
             try {
                 const paidUser = await prisma.user.findUnique({

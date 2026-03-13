@@ -8,6 +8,7 @@ const PaymentSuccess = () => {
     const navigate = useNavigate();
     const [status, setStatus] = useState('verifying'); // verifying, success, error
     const [details, setDetails] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const pidx = searchParams.get('pidx');
     const appointmentId = searchParams.get('appointmentId');
@@ -68,6 +69,11 @@ const PaymentSuccess = () => {
                 }
             } catch (error) {
                 console.error('Verification failed:', error);
+                setErrorMessage(
+                    error?.response?.data?.message ||
+                    error?.response?.data?.error ||
+                    'We could not verify your payment at this time.'
+                );
                 setStatus('error');
             }
         };
@@ -121,7 +127,7 @@ const PaymentSuccess = () => {
                         <div className="payment-success-icon">NO</div>
                         <h2 className="payment-success-title">Verification Failed</h2>
                         <p className="payment-success-text payment-success-text--lg payment-success-text--mb">
-                            We couldn't verify your payment. If the amount was deducted from your wallet, please contact support with your Transaction ID.
+                            {errorMessage || "We couldn't verify your payment. If the amount was deducted from your wallet, please contact support with your Transaction ID."}
                         </p>
                         <div className="payment-success-actions">
                             <button

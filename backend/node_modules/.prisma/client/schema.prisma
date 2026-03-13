@@ -161,3 +161,16 @@ model Rating {
   @@index([customerId])
   @@index([serviceName])
 }
+
+model PendingPartPayment {
+  id             Int      @id @default(autoincrement())
+  pidx           String   @unique
+  userId         Int
+  expectedAmount Int
+  items          Json
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+}
