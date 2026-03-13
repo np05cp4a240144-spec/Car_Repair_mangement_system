@@ -17,6 +17,7 @@ export { default as CustomerCart } from './customer/cart/CustomerCart';
 export { default as CustomerPayment } from './customer/payment/CustomerPayment';
 export { default as CustomerProfile } from './customer/profile/CustomerProfile';
 export { default as PaymentSuccess } from './customer/payment/PaymentSuccess';
+export { default as CustomerRating } from './customer/rating/CustomerRating';
 
 export { default as MechanicLayout } from './mechanic/layout/MechanicLayout';
 export { default as MechanicJobs } from './mechanic/jobs/MechanicJobs';

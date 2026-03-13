@@ -20,6 +20,7 @@ import {
   CustomerInventory,
   CustomerCart,
   PaymentSuccess,
+  CustomerRating,
   MechanicLayout,
   MechanicJobs,
   MechanicSchedule,
@@ -39,6 +40,7 @@ import AdminMechanics from './pages/admin/mechanics/AdminMechanics';
 import AdminInventory from './pages/admin/inventory/AdminInventory';
 import AdminSettings from './pages/admin/settings/AdminSettings';
 import AdminSupportChat from './pages/admin/support/AdminSupportChat';
+import AdminRatings from './pages/admin/ratings/AdminRatings';
 
 
 function App() {
@@ -66,6 +68,7 @@ function App() {
               <Route path="mechanics" element={<AdminMechanics />} />
               <Route path="inventory" element={<AdminInventory />} />
               <Route path="support" element={<AdminSupportChat />} />
+              <Route path="ratings" element={<AdminRatings />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="setting" element={<Navigate to="/admin/settings" replace />} />
             </Route>
@@ -80,6 +83,7 @@ function App() {
               <Route path="cart" element={<CustomerCart />} />
               <Route path="payment" element={<CustomerPayment />} />
               <Route path="profile" element={<CustomerProfile />} />
+              <Route path="rating" element={<CustomerRating />} />
             </Route>
             <Route path="/mechanic" element={<MechanicLayout />}>
               <Route index element={<MechanicJobs />} />

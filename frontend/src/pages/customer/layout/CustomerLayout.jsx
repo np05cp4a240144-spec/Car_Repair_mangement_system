@@ -179,6 +179,9 @@ const CustomerLayout = () => {
                         <NavLink to="/customer/cart" className={({ isActive }) => `customer-layout__nav-link ${isActive ? 'customer-layout__nav-link--active' : ''}`}>
                             Cart
                         </NavLink>
+                        <NavLink to="/customer/rating" className={({ isActive }) => `customer-layout__nav-link ${isActive ? 'customer-layout__nav-link--active' : ''}`}>
+                            Rate Us
+                        </NavLink>
                     </div>
 
                     <div className="customer-layout__header-clock">

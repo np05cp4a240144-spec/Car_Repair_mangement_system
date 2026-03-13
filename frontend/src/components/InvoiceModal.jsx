@@ -24,6 +24,171 @@ const InvoiceModal = ({ isOpen, onClose, invoice }) => {
     const tax = invoice.tax || 0;
     const displayTotal = invoice.totalAmount ?? (partsTotal + laborCost + tax);
 
+    const handlePrint = () => {
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        if (!printWindow) return;
+
+        const partsMarkup = normalizedParts.length > 0
+            ? normalizedParts
+                .map(
+                    (item) => `
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #111827;">${item.name}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: center; color: #111827;">${item.quantity}</td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827;">Rs. ${item.lineTotal.toLocaleString()}</td>
+                        </tr>
+                    `
+                )
+                .join('')
+            : `
+                <tr>
+                    <td colspan="3" style="padding: 14px 0; color: #6b7280; text-align: center;">No parts were recorded for this invoice.</td>
+                </tr>
+            `;
+
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Invoice ${invoice.invoiceNumber}</title>
+                    <meta charset="UTF-8" />
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 0;
+                            padding: 32px;
+                            color: #111827;
+                            background: #ffffff;
+                        }
+                        .sheet {
+                            max-width: 760px;
+                            margin: 0 auto;
+                        }
+                        .header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            margin-bottom: 28px;
+                        }
+                        .brand {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: #ea580c;
+                            margin-bottom: 6px;
+                        }
+                        .muted {
+                            color: #6b7280;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.08em;
+                        }
+                        .invoice-number {
+                            font-size: 18px;
+                            font-weight: 700;
+                            margin-top: 4px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 18px;
+                        }
+                        th {
+                            text-align: left;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 0.08em;
+                            color: #6b7280;
+                            padding-bottom: 10px;
+                            border-bottom: 2px solid #d1d5db;
+                        }
+                        th:nth-child(2), td:nth-child(2) {
+                            text-align: center;
+                        }
+                        th:last-child, td:last-child {
+                            text-align: right;
+                        }
+                        .summary {
+                            margin-top: 26px;
+                            margin-left: auto;
+                            width: 320px;
+                        }
+                        .summary-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 10px 0;
+                            border-bottom: 1px solid #e5e7eb;
+                        }
+                        .summary-row.total {
+                            font-size: 20px;
+                            font-weight: 700;
+                            color: #ea580c;
+                            border-bottom: none;
+                            padding-top: 16px;
+                        }
+                        @media print {
+                            body {
+                                padding: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="sheet">
+                        <div class="header">
+                            <div>
+                                <div class="brand">Auto Assist</div>
+                                <div class="muted">Service Invoice</div>
+                            </div>
+                            <div>
+                                <div class="muted">Invoice Number</div>
+                                <div class="invoice-number">${invoice.invoiceNumber}</div>
+                            </div>
+                        </div>
+
+                        <div class="muted">Parts Used</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Part</th>
+                                    <th>Qty</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${partsMarkup}
+                            </tbody>
+                        </table>
+
+                        <div class="summary">
+                            <div class="summary-row">
+                                <span>Parts Total</span>
+                                <strong>Rs. ${partsTotal.toLocaleString()}</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Labor Cost</span>
+                                <strong>Rs. ${laborCost.toLocaleString()}</strong>
+                            </div>
+                            ${tax > 0 ? `
+                                <div class="summary-row">
+                                    <span>Tax</span>
+                                    <strong>Rs. ${tax.toLocaleString()}</strong>
+                                </div>
+                            ` : ''}
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span>Rs. ${displayTotal.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+    };
+
     return (
         <div className="fixed inset-0 bg-[#1C1C1A]/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <div className="bg-white rounded-[32px] w-full max-w-[500px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -71,7 +236,7 @@ const InvoiceModal = ({ isOpen, onClose, invoice }) => {
                     </div>
 
                     <button
-                        onClick={() => window.print()}
+                        onClick={handlePrint}
                         className="w-full bg-[#18160F] text-white py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-lg shadow-black/10"
                     >
                         🖨️ Download / Print

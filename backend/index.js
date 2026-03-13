@@ -15,6 +15,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
 const prisma = require('./config/db');
 
 const server = http.createServer(app);
@@ -46,6 +47,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

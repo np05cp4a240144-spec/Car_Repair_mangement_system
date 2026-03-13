@@ -16,7 +16,8 @@ import {
     LogOut,
     AlertTriangle,
     Clock3,
-    CheckCircle2
+    CheckCircle2,
+    Star
 } from 'lucide-react';
 
 const DEFAULT_NOTIFICATION_PREFS = {
@@ -180,6 +181,7 @@ const AdminLayout = () => {
             case 'revenue': return 'Revenue';
             case 'mechanics': return 'Mechanics';
             case 'inventory': return 'Inventory';
+            case 'ratings': return 'Ratings';
             case 'settings': return 'Settings';
             default: return 'Overview';
         }
@@ -239,6 +241,7 @@ const AdminLayout = () => {
                         badgeColor="yellow"
                     />
                     <SidebarLink to="/admin/support" icon={<MessageSquare size={18} />} label="Support Chat" />
+                    <SidebarLink to="/admin/ratings" icon={<Star size={18} />} label="Ratings" />
 
                     <div className="admin-layout__nav-title admin-layout__nav-title--spaced">System</div>
                     <SidebarLink to="/admin/settings" icon={<Settings size={18} />} label="Settings" />
