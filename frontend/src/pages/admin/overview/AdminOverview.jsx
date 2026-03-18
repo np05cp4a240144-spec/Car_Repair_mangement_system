@@ -21,18 +21,20 @@ const AdminOverview = () => {
     const [mechanics, setMechanics] = useState([]);
     const [inventory, setInventory] = useState([]);
     const [revenueData, setRevenueData] = useState(null);
+    const [partsStats, setPartsStats] = useState({ totalRevenue: 0, thisMonth: 0, thisYear: 0, monthlyRevenue: [] });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [statsRes, bookingsRes, mechanicsRes, revenueRes, inventoryRes] = await Promise.all([
+                const [statsRes, bookingsRes, mechanicsRes, revenueRes, inventoryRes, partsRevenueRes] = await Promise.all([
                     api.get('/customer/admin-stats'),
                     api.get('/bookings/admin'),
                     api.get('/mechanics'),
                     api.get('/bookings/revenue'),
-                    api.get('/inventory')
+                    api.get('/inventory'),
+                    api.get('/inventory/sales/revenue')
                 ]);
                 setStats(statsRes.data);
                 setAppointments(bookingsRes.data.slice(0, 5));
@@ -40,6 +42,7 @@ const AdminOverview = () => {
                 setMechanics(mechanicsRes.data);
                 setRevenueData(revenueRes.data);
                 setInventory(inventoryRes.data || []);
+                setPartsStats(partsRevenueRes.data || { totalRevenue: 0, thisMonth: 0, thisYear: 0, monthlyRevenue: [] });
             } catch (error) {
                 console.error('Error fetching admin overview data:', error);
             } finally {
@@ -67,10 +70,21 @@ const AdminOverview = () => {
         return acc;
     }, {});
 
+    // Service mix count (for percentage)
     const serviceMixMap = allAppointments.reduce((acc, app) => {
         if (!app.service) return acc;
         app.service.split(',').map((x) => x.trim()).filter(Boolean).forEach((svc) => {
             acc[svc] = (acc[svc] || 0) + 1;
+        });
+        return acc;
+    }, {});
+
+    // Service revenue breakdown (mechanic jobs)
+    const serviceRevenueMap = allAppointments.reduce((acc, app) => {
+        if (!app.service) return acc;
+        const amount = app.amount || 0;
+        app.service.split(',').map((x) => x.trim()).filter(Boolean).forEach((svc) => {
+            acc[svc] = (acc[svc] || 0) + amount;
         });
         return acc;
     }, {});
@@ -82,11 +96,15 @@ const AdminOverview = () => {
         .map(([label, count]) => ({
             label,
             count,
-            pct: totalServiceCount ? `${Math.round((count / totalServiceCount) * 100)}%` : '0%'
+            pct: totalServiceCount ? `${Math.round((count / totalServiceCount) * 100)}%` : '0%',
+            revenue: serviceRevenueMap[label] || 0
         }));
 
     const mixColors = ['orange', 'blue', 'green', 'purple'];
     const serviceMixForRender = serviceMixTop.map((item, idx) => ({ ...item, color: mixColors[idx] }));
+
+    // Add combined parts revenue (direct + mechanic jobs)
+    const combinedPartsRevenue = (serviceRevenueMap['Parts'] || 0) + (partsStats.totalRevenue || 0);
 
     const getStock = (item) => {
         const raw = item?.stock ?? item?.quantity ?? 0;
@@ -130,13 +148,18 @@ const AdminOverview = () => {
         );
     }
 
+    // Combine mechanic and direct parts sales revenue for total
+    const combinedRevenue = Math.round((stats.totalRevenue || 0) + (partsStats.totalRevenue || 0));
+
     return (
         <div className="admin-overview">
             <div className="admin-overview__kpis">
                 <KPICard label="Today's Jobs" val={stats.activeAppointments || 0} delta="Updated just now" deltaType="up" size="sm" />
-                <KPICard label="TOTAL REVENUE" val={`Rs. ${(stats.totalRevenue || 0).toLocaleString()}`} delta="Total cumulative" deltaType="up" size="lg" />
+                <KPICard label="Parts Sales Revenue" val={`Rs. ${partsStats.totalRevenue.toLocaleString()}`} delta="Direct parts sales" deltaType="up" size="md" />
                 <KPICard label="Customers" val={stats.customers || 0} delta="New signups" deltaType="up" size="xs" />
             </div>
+
+
 
             <div className="admin-overview__top-row">
                 <section className="admin-overview__panel admin-overview__panel--chart">

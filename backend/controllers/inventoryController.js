@@ -277,6 +277,52 @@ const purchaseParts = async (req, res) => {
     }
 };
 
+// Get total revenue from direct parts purchases
+const getPartsSalesRevenue = async (req, res) => {
+    try {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        // Find all Stock Out logs with 'Customer purchase' in notes
+        const logs = await prisma.partLog.findMany({
+            where: {
+                type: 'Stock Out',
+                notes: { contains: 'Customer purchase' }
+            },
+            include: { part: true }
+        });
+
+        let totalRevenue = 0;
+        let totalRevenueMonth = 0;
+        let totalRevenueYear = 0;
+        const monthlyRevenue = new Array(12).fill(0);
+
+        logs.forEach(log => {
+            const price = log.part?.price || 0;
+            const revenue = price * log.amount;
+            totalRevenue += revenue;
+            const logDate = new Date(log.createdAt);
+            if (logDate.getFullYear() === currentYear) {
+                totalRevenueYear += revenue;
+                monthlyRevenue[logDate.getMonth()] += revenue;
+                if (logDate.getMonth() === currentMonth) {
+                    totalRevenueMonth += revenue;
+                }
+            }
+        });
+
+        res.json({
+            totalRevenue,
+            thisMonth: totalRevenueMonth,
+            thisYear: totalRevenueYear,
+            monthlyRevenue
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     getInventory,
     getPartDetails,
@@ -285,5 +331,6 @@ module.exports = {
     updateStock,
     updatePart,
     requestRestock,
-    purchaseParts
+    purchaseParts,
+    getPartsSalesRevenue
 };

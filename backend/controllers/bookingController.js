@@ -204,11 +204,12 @@ const getRevenueStats = async (req, res) => {
         const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const firstDayYear = new Date(now.getFullYear(), 0, 1);
 
-        // 1. Fetch all completed appointments
+        // 1. Fetch all completed appointments with parts
         const completedAppointments = await prisma.appointment.findMany({
             where: { status: 'Completed' },
             include: {
-                mechanic: { select: { name: true } }
+                mechanic: { select: { name: true } },
+                parts: { include: { part: true } }
             }
         });
 
@@ -217,22 +218,36 @@ const getRevenueStats = async (req, res) => {
         let totalRevenueYear = 0;
         const monthlyRevenue = new Array(12).fill(0);
         const serviceMap = {};
+        const serviceMapMonth = {};
+        const serviceMapYear = {};
         const mechanicMap = {};
+        let partsRevenue = 0;
 
         completedAppointments.forEach(app => {
             const appDate = new Date(app.createdAt);
             const amount = app.amount || 0;
 
+            // Sum all job part prices for this appointment
+            let jobPartsTotal = 0;
+            if (app.parts && app.parts.length > 0) {
+                jobPartsTotal = app.parts.reduce((sum, jp) => sum + ((jp.priceAtTime || jp.part?.price || 0) * (jp.quantity || 1)), 0);
+                partsRevenue += jobPartsTotal;
+            }
+
+            // Service Breakdown (all time)
+            serviceMap[app.service] = (serviceMap[app.service] || 0) + amount;
+
+            // Service Breakdown (this year)
             if (appDate.getFullYear() === now.getFullYear()) {
+                serviceMapYear[app.service] = (serviceMapYear[app.service] || 0) + amount;
                 totalRevenueYear += amount;
                 monthlyRevenue[appDate.getMonth()] += amount;
+                // Service Breakdown (this month)
                 if (appDate.getMonth() === now.getMonth()) {
+                    serviceMapMonth[app.service] = (serviceMapMonth[app.service] || 0) + amount;
                     totalRevenueMonth += amount;
                 }
             }
-
-            // Service Breakdown
-            serviceMap[app.service] = (serviceMap[app.service] || 0) + amount;
 
             // Mechanic Performance
             if (app.mechanic) {
@@ -246,12 +261,20 @@ const getRevenueStats = async (req, res) => {
 
         const avgJobValue = completedAppointments.length > 0 ? totalRevenueYear / completedAppointments.length : 0;
 
+
+        // Add 'Parts' to service breakdowns
+        serviceMap['Parts'] = partsRevenue;
+        serviceMapYear['Parts'] = partsRevenue; // If you want to include all job parts for the year
+        serviceMapMonth['Parts'] = partsRevenue; // If you want to include all job parts for the month
+
         res.json({
             thisMonth: totalRevenueMonth,
             thisYear: totalRevenueYear,
             avgJobValue,
             monthlyRevenue, // Array of 12 values
             serviceBreakdown: Object.entries(serviceMap).map(([name, value]) => ({ name, value })),
+            serviceBreakdownYear: Object.entries(serviceMapYear).map(([name, value]) => ({ name, value })),
+            serviceBreakdownMonth: Object.entries(serviceMapMonth).map(([name, value]) => ({ name, value })),
             mechanicPerformance: Object.entries(mechanicMap).map(([name, stats]) => ({
                 name,
                 revenue: stats.revenue,

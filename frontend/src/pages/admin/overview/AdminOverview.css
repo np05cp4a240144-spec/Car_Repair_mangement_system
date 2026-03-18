@@ -21,11 +21,13 @@
 	animation: adminOverviewSpin 0.8s linear infinite;
 }
 
+
 .admin-overview__kpis {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16px;
-	padding: 5px;
+	gap: 28px;
+	padding: 10px 0 18px 0;
+	justify-content: flex-start;
 }
 
 .admin-kpi {
@@ -35,9 +37,10 @@
 	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
-.admin-kpi--xs { flex: 0.8; min-width: 180px; border-radius: 0; }
-.admin-kpi--sm { flex: 1; min-width: 200px; border-radius: 8px; }
-.admin-kpi--lg { flex: 1.2; min-width: 240px; border-radius: 24px; }
+.admin-kpi--xs { flex: 1 1 180px; min-width: 180px; border-radius: 8px; }
+.admin-kpi--sm { flex: 1 1 220px; min-width: 220px; border-radius: 12px; }
+.admin-kpi--md { flex: 1 1 220px; min-width: 220px; border-radius: 12px; }
+.admin-kpi--lg { flex: 1.2 1 260px; min-width: 240px; border-radius: 24px; }
 
 .admin-kpi__label {
 	font-size: 12px;
