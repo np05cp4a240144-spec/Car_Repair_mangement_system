@@ -12,6 +12,7 @@ const AdminSupportChat = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [activeChatUser, setActiveChatUser] = useState(null);
   const [recentChats, setRecentChats] = useState([]);
+  const [supportWindow, setSupportWindow] = useState(null);
 
   useEffect(() => {
     const loadRecentChats = async () => {
@@ -48,6 +49,24 @@ const AdminSupportChat = () => {
 
     return () => socket.off('receive_message');
   }, [socket]);
+
+  useEffect(() => {
+    const loadSupportStatus = async () => {
+      if (!activeChat) {
+        setSupportWindow(null);
+        return;
+      }
+
+      try {
+        const res = await api.get(`/messages/payment-support/status?customerId=${activeChat}`);
+        setSupportWindow(res.data?.supportWindow || null);
+      } catch {
+        setSupportWindow(null);
+      }
+    };
+
+    loadSupportStatus();
+  }, [activeChat, messages]);
 
   const fetchMessages = async (otherUserId) => {
     try {
@@ -92,6 +111,19 @@ const AdminSupportChat = () => {
     setInput('');
   };
 
+  const markSolved = async () => {
+    if (!activeChat) return;
+
+    try {
+      await api.patch('/messages/payment-support/solve', { customerId: activeChat });
+      setSupportWindow({ canMessage: false, reason: 'solved' });
+      const res = await api.get(`/messages?otherUserId=${activeChat}`);
+      setMessages(res.data || []);
+    } catch (error) {
+      console.error('Error marking payment support solved:', error);
+    }
+  };
+
   return (
     <div className="mechanic-chat">
       <div className="mechanic-chat__sidebar">
@@ -123,11 +155,26 @@ const AdminSupportChat = () => {
               <div className="mechanic-chat__active-subtitle">Admin payment support channel</div>
             </div>
           </div>
+            {activeChat && (
+              <button
+                className="admin-chat__solve-btn"
+                onClick={markSolved}
+                type="button"
+                disabled={supportWindow && supportWindow.canMessage === false}
+              >
+                {supportWindow && supportWindow.canMessage === false ? 'Solved' : 'Mark as Solved'}
+              </button>
+            )}
         </div>
+
+          {supportWindow && !supportWindow.canMessage && (
+            <div className="customer-chat-main__support-banner">
+              Payment support window is closed for this customer ({supportWindow.reason}).
+            </div>
+          )}
 
         <div className="mechanic-chat__messages">
           {messages.map((m) => {
-            // Detect payment failure message (customize as needed)
             const isPaymentFail = /payment failed|payment-failure|payment unsuccessful/i.test(m.content);
             return (
               <div key={m.id} className={`admin-chat__msg-wrap ${m.senderId === user.id ? 'admin-chat__msg-wrap--mine' : 'admin-chat__msg-wrap--other'}`}>

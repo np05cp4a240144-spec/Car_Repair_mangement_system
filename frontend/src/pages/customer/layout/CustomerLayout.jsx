@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useSocket } from '../../../context/SocketContext';
 import { AlertTriangle, Bell, CheckCircle2, Clock3 } from 'lucide-react';
 import api from '../../../api/axios';
 import './CustomerLayout.css';
@@ -9,6 +10,7 @@ const CustomerLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    const { socket } = useSocket();
     const [showDropdown, setShowDropdown] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -101,7 +103,13 @@ const CustomerLayout = () => {
                     });
                 }
 
-                setNotifications(nextNotifications);
+                setNotifications((prev) => {
+                    const realtimeNotifications = prev.filter((item) => item.isRealtime);
+                    const baseNotifications = nextNotifications.filter(
+                        (item) => !realtimeNotifications.some((existing) => existing.id === item.id)
+                    );
+                    return [...realtimeNotifications, ...baseNotifications];
+                });
             } catch (error) {
                 console.error('Error fetching customer notifications:', error);
                 setNotifications([]);
@@ -123,6 +131,58 @@ const CustomerLayout = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleRealtimePayment = (payload = {}) => {
+            const amount = Number(payload.amount || 0).toFixed(2);
+            const notificationId = `realtime-payment-${payload.pidx || Date.now()}`;
+            const paymentRoute = payload.mode === 'parts' ? '/customer/inventory' : '/customer/history';
+
+            setNotifications((prev) => {
+                const withoutDuplicate = prev.filter((item) => item.id !== notificationId);
+                return [{
+                    id: notificationId,
+                    type: 'success',
+                    title: 'Payment successful',
+                    message: payload.message || `Your payment of NPR ${amount} was confirmed.`,
+                    route: paymentRoute,
+                    isRealtime: true
+                }, ...withoutDuplicate];
+            });
+
+            setDismissedNotificationIds((prev) => prev.filter((id) => id !== notificationId));
+        };
+
+        socket.on('payment_received_customer', handleRealtimePayment);
+        return () => socket.off('payment_received_customer', handleRealtimePayment);
+    }, [socket]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleServiceFinalized = (payload = {}) => {
+            const notificationId = `service-finalized-${payload.appointmentId || Date.now()}`;
+
+            setNotifications((prev) => {
+                const withoutDuplicate = prev.filter((item) => item.id !== notificationId);
+                return [{
+                    id: notificationId,
+                    type: 'success',
+                    title: 'Service finalized',
+                    message: payload.message || 'Your service has been finalized successfully.',
+                    route: '/customer/history',
+                    isRealtime: true
+                }, ...withoutDuplicate];
+            });
+
+            setDismissedNotificationIds((prev) => prev.filter((id) => id !== notificationId));
+        };
+
+        socket.on('service_finalized_customer', handleServiceFinalized);
+        return () => socket.off('service_finalized_customer', handleServiceFinalized);
+    }, [socket]);
 
     const unreadCount = useMemo(
         () => notifications.filter((item) => !dismissedNotificationIds.includes(item.id)).length,

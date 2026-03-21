@@ -15,6 +15,7 @@ const CustomerChat = () => {
     const [activeChatUser, setActiveChatUser] = useState(null);
     const [recentChats, setRecentChats] = useState([]);
     const [isSupportMode, setIsSupportMode] = useState(Boolean(location.state?.supportMode));
+    const [supportWindow, setSupportWindow] = useState({ canMessage: true, reason: 'active' });
 
     useEffect(() => {
         if (activeChat && recentChats.length > 0) {
@@ -22,6 +23,12 @@ const CustomerChat = () => {
             if (chat) setActiveChatUser(chat.user);
         }
     }, [activeChat, recentChats]);
+
+    useEffect(() => {
+        if (activeChatUser?.role === 'ADMIN') {
+            setIsSupportMode(true);
+        }
+    }, [activeChatUser]);
 
     useEffect(() => {
         if (location.state?.mechanicId) {
@@ -32,6 +39,20 @@ const CustomerChat = () => {
             fetchMessages(location.state.supportUserId);
         }
     }, [location.state]);
+
+    useEffect(() => {
+        const loadSupportStatus = async () => {
+            if (!isSupportMode || !activeChat || activeChatUser?.role !== 'ADMIN') return;
+            try {
+                const res = await api.get(`/messages/payment-support/status?adminId=${activeChat}`);
+                setSupportWindow(res.data?.supportWindow || { canMessage: false, reason: 'not_started' });
+            } catch (error) {
+                console.error('Error loading support status:', error);
+            }
+        };
+
+        loadSupportStatus();
+    }, [isSupportMode, activeChat, activeChatUser]);
 
     useEffect(() => {
         const loadRecentChats = async () => {
@@ -73,6 +94,15 @@ const CustomerChat = () => {
 
     const fetchMessages = async (otherUserId) => {
         try {
+            const isSupportTarget = Boolean(
+                location.state?.supportMode &&
+                Number(location.state?.supportUserId) === Number(otherUserId)
+            );
+            setIsSupportMode(isSupportTarget);
+            if (!isSupportTarget) {
+                setSupportWindow({ canMessage: true, reason: 'active' });
+            }
+
             const res = await api.get(`/messages?otherUserId=${otherUserId}`);
             setMessages(res.data);
             setActiveChat(otherUserId);
@@ -96,7 +126,12 @@ const CustomerChat = () => {
         const currentInput = input.trim();
         setInput('');
 
-        if (isSupportMode && activeChatUser?.role === 'ADMIN') {
+        const isAdminChat = activeChatUser?.role === 'ADMIN';
+
+        if (isAdminChat) {
+            if (!supportWindow?.canMessage) {
+                return;
+            }
             try {
                 const res = await api.post('/messages/payment-support/send', {
                     adminId: activeChat,
@@ -107,6 +142,10 @@ const CustomerChat = () => {
                 return;
             } catch (error) {
                 console.error('Error sending support message:', error);
+                if (error?.response?.data?.supportWindow) {
+                    setSupportWindow(error.response.data.supportWindow);
+                }
+                return;
             }
         }
 
@@ -179,7 +218,9 @@ const CustomerChat = () => {
                 <div className="customer-chat-main__messages">
                     {isSupportMode && (
                         <div className="customer-chat-main__support-banner">
-                            Payment Support AI is active. Admin team will also see this conversation.
+                            {supportWindow?.canMessage
+                                ? 'Payment Support AI is active. Admin team will also see this conversation.'
+                                : `Payment support chat is closed (${supportWindow?.reason || 'closed'}).`}
                         </div>
                     )}
                     <div className="customer-chat-main__day-marker-wrap">
@@ -213,12 +254,13 @@ const CustomerChat = () => {
                                 className="customer-chat-main__input"
                                 placeholder={activeChatUser ? `Message ${activeChatUser.name}...` : 'Select a chat to message...'}
                                 value={input}
-                                disabled={!activeChat}
+                                disabled={!activeChat || (activeChatUser?.role === 'ADMIN' && !supportWindow?.canMessage)}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && sendMessageHandler()}
                             />
                             <button
                                 className={`customer-chat-main__send-btn ${input.trim() ? 'customer-chat-main__send-btn--active' : ''}`}
+                                disabled={activeChatUser?.role === 'ADMIN' && !supportWindow?.canMessage}
                                 onClick={sendMessageHandler}
                             >
                                 {'>'}

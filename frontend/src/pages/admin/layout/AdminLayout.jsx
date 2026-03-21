@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useSocket } from '../../../context/SocketContext';
 import api from '../../../api/axios';
 import './AdminLayout.css';
 import {
@@ -42,6 +43,7 @@ const getNotificationPrefs = () => {
 
 const AdminLayout = () => {
     const { user, logout } = useAuth();
+    const { socket } = useSocket();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -168,7 +170,13 @@ const AdminLayout = () => {
                 });
             }
 
-            setNotifications(nextNotifications);
+            setNotifications((prev) => {
+                const realtimeNotifications = prev.filter((item) => item.isRealtime);
+                const baseNotifications = nextNotifications.filter(
+                    (item) => !realtimeNotifications.some((existing) => existing.id === item.id)
+                );
+                return [...realtimeNotifications, ...baseNotifications];
+            });
         } catch (error) {
             console.error('Error fetching admin notifications:', error);
             setNotifications([]);
@@ -182,6 +190,31 @@ const AdminLayout = () => {
         const refreshTimer = setInterval(fetchNotifications, 30000);
         return () => clearInterval(refreshTimer);
     }, [fetchNotifications, location.pathname]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleRealtimePayment = (payload = {}) => {
+            const amount = Number(payload.amount || 0).toFixed(2);
+            const notificationId = `realtime-payment-${payload.pidx || Date.now()}`;
+
+            setNotifications((prev) => {
+                const withoutDuplicate = prev.filter((item) => item.id !== notificationId);
+                return [{
+                    id: notificationId,
+                    type: 'success',
+                    title: 'Payment received',
+                    message: payload.message || `A payment of NPR ${amount} was confirmed.`,
+                    isRealtime: true
+                }, ...withoutDuplicate];
+            });
+
+            setDismissedNotificationIds((prev) => prev.filter((id) => id !== notificationId));
+        };
+
+        socket.on('payment_received_admin', handleRealtimePayment);
+        return () => socket.off('payment_received_admin', handleRealtimePayment);
+    }, [socket]);
 
     const handleLogout = () => {
         logout();

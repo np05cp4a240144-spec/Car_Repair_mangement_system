@@ -10,11 +10,13 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            const newSocket = io('http://localhost:5000'); // Replace with your backend URL
+            const newSocket = io('http://localhost:5000');
             setSocket(newSocket);
 
-            // Join a private room for the user
             newSocket.emit('join_room', `user_${user.id}`);
+            if (user.role === 'ADMIN') {
+                newSocket.emit('join_room', 'admins');
+            }
 
             return () => {
                 newSocket.disconnect();

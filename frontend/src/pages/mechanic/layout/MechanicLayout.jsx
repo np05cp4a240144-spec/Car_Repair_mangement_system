@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useSocket } from '../../../context/SocketContext';
 import api from '../../../api/axios';
 import './MechanicLayout.css';
 import {
@@ -19,6 +20,7 @@ const MechanicLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useAuth();
+    const { socket } = useSocket();
     const [time, setTime] = useState(new Date());
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -98,7 +100,13 @@ const MechanicLayout = () => {
                     });
                 }
 
-                setNotifications(nextNotifications);
+                setNotifications((prev) => {
+                    const realtimeNotifications = prev.filter((item) => item.isRealtime);
+                    const baseNotifications = nextNotifications.filter(
+                        (item) => !realtimeNotifications.some((existing) => existing.id === item.id)
+                    );
+                    return [...realtimeNotifications, ...baseNotifications];
+                });
             } catch (error) {
                 console.error('Error fetching mechanic notifications:', error);
                 setNotifications([]);
@@ -111,6 +119,30 @@ const MechanicLayout = () => {
         const intervalId = setInterval(fetchNotifications, 15000);
         return () => clearInterval(intervalId);
     }, [location.pathname]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleJobAssigned = (payload = {}) => {
+            const notificationId = `mechanic-assigned-${payload.appointmentId || Date.now()}`;
+
+            setNotifications((prev) => {
+                const withoutDuplicate = prev.filter((item) => item.id !== notificationId);
+                return [{
+                    id: notificationId,
+                    type: 'warning',
+                    title: 'New job assigned',
+                    message: payload.message || `You have been assigned job #${payload.appointmentId}.`,
+                    isRealtime: true
+                }, ...withoutDuplicate];
+            });
+
+            setDismissedNotificationIds((prev) => prev.filter((id) => id !== notificationId));
+        };
+
+        socket.on('mechanic_job_assigned', handleJobAssigned);
+        return () => socket.off('mechanic_job_assigned', handleJobAssigned);
+    }, [socket]);
 
     const handleLogout = () => {
         logout();
