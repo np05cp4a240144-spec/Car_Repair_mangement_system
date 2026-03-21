@@ -1,6 +1,29 @@
 const axios = require('axios');
 const prisma = require('../config/db');
 const { sendPaymentReceivedEmail } = require('../utils/emailUtil');
+const { getIO } = require('../utils/socket');
+
+const emitPaymentNotifications = ({ userId, mode, amount, pidx, appointmentId }) => {
+    try {
+        const io = getIO();
+        const paymentLabel = mode === 'parts' ? 'parts' : 'service';
+
+        const payload = {
+            mode,
+            amount,
+            pidx,
+            appointmentId: appointmentId || null,
+            message: `Payment received for ${paymentLabel} (NPR ${Number(amount || 0).toFixed(2)}).`
+        };
+
+        io.to('admins').emit('payment_received_admin', payload);
+        if (userId) {
+            io.to(`user_${userId}`).emit('payment_received_customer', payload);
+        }
+    } catch (socketError) {
+        console.error('Payment notification socket emit failed:', socketError.message);
+    }
+};
 
 const initiateKhaltiPayment = async (req, res) => {
     const { appointmentId, mode, items } = req.body;
@@ -96,7 +119,6 @@ const initiateKhaltiPayment = async (req, res) => {
 
         if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
 
-        // Calculate amount (prefer invoice total, then appointment amount, then fallback to parts)
         let amount = 0;
         if (appointment.invoice) {
             amount = appointment.invoice.totalAmount;
@@ -280,6 +302,13 @@ const verifyKhaltiPayment = async (req, res) => {
                 console.error('Parts payment email send failed:', emailError.message);
             }
 
+            emitPaymentNotifications({
+                userId: pending.userId,
+                mode: 'parts',
+                amount: Number(response.data.total_amount || 0) / 100,
+                pidx
+            });
+
             return res.json({
                 success: true,
                 message: 'Parts payment verified and stock updated',
@@ -294,14 +323,12 @@ const verifyKhaltiPayment = async (req, res) => {
                 return res.status(400).json({ error: 'Missing appointmentId' });
             }
 
-            // Update appointment status to paid
             const updatedAppointment = await prisma.appointment.update({
                 where: { id: parseInt(appointmentId) },
                 data: { isPaid: true },
                 include: { user: true }
             });
             
-            // Send payment confirmation email
             if (updatedAppointment?.user?.email) {
                 try {
                     await sendPaymentReceivedEmail(
@@ -318,6 +345,14 @@ const verifyKhaltiPayment = async (req, res) => {
                     console.error('Appointment payment email send failed:', emailError.message);
                 }
             }
+
+            emitPaymentNotifications({
+                userId: updatedAppointment?.user?.id,
+                mode: 'appointment',
+                amount: Number(response.data.total_amount || 0) / 100,
+                pidx,
+                appointmentId: updatedAppointment.id
+            });
             
             return res.json({ success: true, message: 'Payment verified and updated', data: response.data });
         }

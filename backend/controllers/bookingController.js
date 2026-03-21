@@ -1,5 +1,11 @@
 const prisma = require('../config/db');
-const { sendConfirmationEmail, sendUpdateEmail } = require('../utils/emailUtil');
+const {
+    sendConfirmationEmail,
+    sendUpdateEmail,
+    sendServiceFinalizedEmail,
+    sendMechanicJobAssignedEmail
+} = require('../utils/emailUtil');
+const { getIO } = require('../utils/socket');
 
 const createBooking = async (req, res) => {
     const { service, time, vehicleId } = req.body;
@@ -9,7 +15,6 @@ const createBooking = async (req, res) => {
     }
 
     try {
-        // 1. Find all mechanics
         const mechanics = await prisma.user.findMany({
             where: { role: 'MECHANIC' },
             include: {
@@ -25,13 +30,10 @@ const createBooking = async (req, res) => {
             return res.status(400).json({ error: 'No mechanics available at the moment' });
         }
 
-        // 2. Find the mechanic with the fewest assignments
-        // Sort by assignment count
         const assignedMechanic = mechanics.sort((a, b) => 
             a.mechanicAssignments.length - b.mechanicAssignments.length
         )[0];
 
-        // 3. Create the appointment
         const appointment = await prisma.appointment.create({
             data: {
                 service,
@@ -54,10 +56,35 @@ const createBooking = async (req, res) => {
             appointment
         });
 
-        // Send confirmation email
+        try {
+            const io = getIO();
+            io.to(`user_${assignedMechanic.id}`).emit('mechanic_job_assigned', {
+                appointmentId: appointment.id,
+                service: appointment.service,
+                time: appointment.time,
+                message: `New job assigned: ${appointment.service}`
+            });
+        } catch (socketError) {
+            console.error('Mechanic assignment socket emit failed:', socketError.message);
+        }
+
         const user = await prisma.user.findUnique({ where: { id: req.user.id } });
         if (user && user.email) {
             sendConfirmationEmail(user.email, user.name || 'Customer', appointment);
+        }
+
+        if (assignedMechanic?.email) {
+            sendMechanicJobAssignedEmail(
+                assignedMechanic.email,
+                assignedMechanic.name || 'Mechanic',
+                {
+                    appointmentId: appointment.id,
+                    service: appointment.service,
+                    time: appointment.time
+                }
+            ).catch((emailError) => {
+                console.error('Mechanic assignment email failed:', emailError.message);
+            });
         }
 
     } catch (error) {
@@ -147,7 +174,6 @@ const updateBookingStatus = async (req, res) => {
             return res.status(404).json({ error: 'Appointment not found' });
         }
 
-        // Check permissions
         if (req.user.role === 'USER' && appointment.userId !== req.user.id) {
             return res.status(403).json({ error: 'Not authorized' });
         }
@@ -174,8 +200,8 @@ const updateBookingStatus = async (req, res) => {
                 vehicleId: vehicleId !== undefined ? parseInt(vehicleId) : appointment.vehicleId
             },
             include: {
-                user: { select: { name: true } },
-                mechanic: { select: { name: true } },
+                user: { select: { id: true, name: true, email: true } },
+                mechanic: { select: { id: true, name: true, email: true } },
                 vehicle: true,
                 invoice: true,
                 parts: { include: { part: true } }
@@ -184,12 +210,73 @@ const updateBookingStatus = async (req, res) => {
 
         res.json(updatedAppointment);
 
-        // Send update email if status or stage changed
         if ((status && status !== appointment.status) || (stage && stage !== appointment.stage)) {
             const user = updatedAppointment.user;
             if (user && user.email) {
                 const updateMsg = `Status changed to: ${updatedAppointment.status}, Stage changed to: ${updatedAppointment.stage}`;
                 sendUpdateEmail(user.email, user.name || 'Customer', updatedAppointment.service, updateMsg);
+            }
+        }
+
+        const shouldNotifyServiceFinalized =
+            updatedAppointment.status === 'Completed' && appointment.status !== 'Completed';
+
+        if (shouldNotifyServiceFinalized) {
+            if (updatedAppointment.user?.email) {
+                sendServiceFinalizedEmail(
+                    updatedAppointment.user.email,
+                    updatedAppointment.user.name || 'Customer',
+                    {
+                        appointmentId: updatedAppointment.id,
+                        service: updatedAppointment.service,
+                        reference: updatedAppointment.id
+                    }
+                ).catch((emailError) => {
+                    console.error('Service finalized email failed:', emailError.message);
+                });
+            }
+
+            try {
+                const io = getIO();
+                io.to(`user_${updatedAppointment.userId}`).emit('service_finalized_customer', {
+                    appointmentId: updatedAppointment.id,
+                    service: updatedAppointment.service,
+                    message: `Your service has been finalized: ${updatedAppointment.service}.`
+                });
+            } catch (socketError) {
+                console.error('Service finalized socket emit failed:', socketError.message);
+            }
+        }
+
+        const mechanicChanged =
+            updatedAppointment.mechanicId &&
+            updatedAppointment.mechanicId !== appointment.mechanicId;
+
+        if (mechanicChanged) {
+            if (updatedAppointment.mechanic?.email) {
+                sendMechanicJobAssignedEmail(
+                    updatedAppointment.mechanic.email,
+                    updatedAppointment.mechanic.name || 'Mechanic',
+                    {
+                        appointmentId: updatedAppointment.id,
+                        service: updatedAppointment.service,
+                        time: updatedAppointment.time
+                    }
+                ).catch((emailError) => {
+                    console.error('Mechanic reassignment email failed:', emailError.message);
+                });
+            }
+
+            try {
+                const io = getIO();
+                io.to(`user_${updatedAppointment.mechanicId}`).emit('mechanic_job_assigned', {
+                    appointmentId: updatedAppointment.id,
+                    service: updatedAppointment.service,
+                    time: updatedAppointment.time,
+                    message: `New job assigned: ${updatedAppointment.service}`
+                });
+            } catch (socketError) {
+                console.error('Mechanic reassignment socket emit failed:', socketError.message);
             }
         }
     } catch (error) {
@@ -204,7 +291,6 @@ const getRevenueStats = async (req, res) => {
         const firstDayMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const firstDayYear = new Date(now.getFullYear(), 0, 1);
 
-        // 1. Fetch all completed appointments with parts
         const completedAppointments = await prisma.appointment.findMany({
             where: { status: 'Completed' },
             include: {
@@ -213,7 +299,6 @@ const getRevenueStats = async (req, res) => {
             }
         });
 
-        // 2. Calculate Stats
         let totalRevenueMonth = 0;
         let totalRevenueYear = 0;
         const monthlyRevenue = new Array(12).fill(0);
@@ -227,29 +312,24 @@ const getRevenueStats = async (req, res) => {
             const appDate = new Date(app.createdAt);
             const amount = app.amount || 0;
 
-            // Sum all job part prices for this appointment
             let jobPartsTotal = 0;
             if (app.parts && app.parts.length > 0) {
                 jobPartsTotal = app.parts.reduce((sum, jp) => sum + ((jp.priceAtTime || jp.part?.price || 0) * (jp.quantity || 1)), 0);
                 partsRevenue += jobPartsTotal;
             }
 
-            // Service Breakdown (all time)
             serviceMap[app.service] = (serviceMap[app.service] || 0) + amount;
 
-            // Service Breakdown (this year)
             if (appDate.getFullYear() === now.getFullYear()) {
                 serviceMapYear[app.service] = (serviceMapYear[app.service] || 0) + amount;
                 totalRevenueYear += amount;
                 monthlyRevenue[appDate.getMonth()] += amount;
-                // Service Breakdown (this month)
                 if (appDate.getMonth() === now.getMonth()) {
                     serviceMapMonth[app.service] = (serviceMapMonth[app.service] || 0) + amount;
                     totalRevenueMonth += amount;
                 }
             }
 
-            // Mechanic Performance
             if (app.mechanic) {
                 if (!mechanicMap[app.mechanic.name]) {
                     mechanicMap[app.mechanic.name] = { revenue: 0, count: 0 };
@@ -262,16 +342,15 @@ const getRevenueStats = async (req, res) => {
         const avgJobValue = completedAppointments.length > 0 ? totalRevenueYear / completedAppointments.length : 0;
 
 
-        // Add 'Parts' to service breakdowns
         serviceMap['Parts'] = partsRevenue;
-        serviceMapYear['Parts'] = partsRevenue; // If you want to include all job parts for the year
-        serviceMapMonth['Parts'] = partsRevenue; // If you want to include all job parts for the month
+        serviceMapYear['Parts'] = partsRevenue;
+        serviceMapMonth['Parts'] = partsRevenue;
 
         res.json({
             thisMonth: totalRevenueMonth,
             thisYear: totalRevenueYear,
             avgJobValue,
-            monthlyRevenue, // Array of 12 values
+            monthlyRevenue,
             serviceBreakdown: Object.entries(serviceMap).map(([name, value]) => ({ name, value })),
             serviceBreakdownYear: Object.entries(serviceMapYear).map(([name, value]) => ({ name, value })),
             serviceBreakdownMonth: Object.entries(serviceMapMonth).map(([name, value]) => ({ name, value })),

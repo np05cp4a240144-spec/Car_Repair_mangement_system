@@ -145,10 +145,76 @@ const sendPaymentReceivedEmail = async (email, name, paymentDetails = {}) => {
     }
 };
 
+const sendServiceFinalizedEmail = async (email, name, serviceDetails = {}) => {
+    const serviceName = serviceDetails?.service || 'your service';
+    const reference = serviceDetails?.reference || serviceDetails?.appointmentId || 'N/A';
+
+    const mailOptions = {
+        from: `"Auto Assist" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'Service Finalized - Auto Assist',
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                <h2 style="color: #10B981;">Service Finalized</h2>
+                <p>Hello ${name},</p>
+                <p>Your service has been finalized successfully.</p>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #10B981; margin: 20px 0;">
+                    <p style="margin: 0; margin-bottom: 8px;"><strong>Service:</strong> ${serviceName}</p>
+                    <p style="margin: 0;"><strong>Reference:</strong> #${reference}</p>
+                </div>
+                <p>Thank you for choosing Auto Assist.</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Service finalized email sent to ${email}`);
+    } catch (error) {
+        console.error('Error sending service finalized email:', error);
+        throw new Error('Failed to send service finalized email');
+    }
+};
+
+const sendMechanicJobAssignedEmail = async (email, name, assignmentDetails = {}) => {
+    const serviceName = assignmentDetails?.service || 'New Service Job';
+    const appointmentId = assignmentDetails?.appointmentId || 'N/A';
+    const schedule = assignmentDetails?.time ? new Date(assignmentDetails.time).toLocaleString() : 'As scheduled';
+
+    const mailOptions = {
+        from: `"Auto Assist" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: 'New Job Assigned - Auto Assist',
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                <h2 style="color: #3B82F6;">New Job Assigned</h2>
+                <p>Hello ${name},</p>
+                <p>A new job has been assigned to you.</p>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 4px solid #3B82F6; margin: 20px 0;">
+                    <p style="margin: 0; margin-bottom: 8px;"><strong>Job ID:</strong> #${appointmentId}</p>
+                    <p style="margin: 0; margin-bottom: 8px;"><strong>Service:</strong> ${serviceName}</p>
+                    <p style="margin: 0;"><strong>Schedule:</strong> ${schedule}</p>
+                </div>
+                <p>Please check your mechanic dashboard for details.</p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Mechanic assignment email sent to ${email}`);
+    } catch (error) {
+        console.error('Error sending mechanic assignment email:', error);
+        throw new Error('Failed to send mechanic assignment email');
+    }
+};
+
 module.exports = {
     sendCredentialsEmail,
     sendConfirmationEmail,
     sendUpdateEmail,
     sendReminderEmail,
-    sendPaymentReceivedEmail
+    sendPaymentReceivedEmail,
+    sendServiceFinalizedEmail,
+    sendMechanicJobAssignedEmail
 };

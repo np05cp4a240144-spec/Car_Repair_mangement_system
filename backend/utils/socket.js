@@ -17,7 +17,16 @@ const initSocket = (socketIo) => {
             const { senderId, receiverId, content, appointmentId } = data;
 
             try {
-                // Save message to database
+                const [sender, receiver] = await Promise.all([
+                    prisma.user.findUnique({ where: { id: parseInt(senderId) }, select: { id: true, role: true } }),
+                    prisma.user.findUnique({ where: { id: parseInt(receiverId) }, select: { id: true, role: true } })
+                ]);
+
+                if (sender?.role === 'USER' && receiver?.role === 'ADMIN') {
+                    socket.emit('error', { message: 'Direct customer-to-admin chat is restricted. Use payment support flow for failed payments.' });
+                    return;
+                }
+
                 const newMessage = await prisma.message.create({
                     data: {
                         content,
@@ -32,12 +41,8 @@ const initSocket = (socketIo) => {
                     }
                 });
 
-                // Emit to the specific room (appointmentId or a private room between users)
                 const roomId = appointmentId ? `appointment_${appointmentId}` : `user_${receiverId}`;
                 io.to(roomId).emit('receive_message', newMessage);
-                
-                // Also emit back to sender to confirm (optional, usually handled by local UI update)
-                // socket.emit('message_sent', newMessage);
 
             } catch (error) {
                 console.error('Error saving message:', error);
