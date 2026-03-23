@@ -153,10 +153,14 @@ const CustomerInventory = () => {
                         const inCart = getCartQty(part.id);
                         const canAdd = stock > inCart;
 
+                        const isLowStock = stock > 0 && stock <= (part.minStock || 5);
                         return (
-                            <article key={part.id} className="customer-inventory__card">
+                            <article key={part.id} className={`customer-inventory__card ${isLowStock ? 'is-low-stock-alert' : ''}`}>
                                 <div className="customer-inventory__card-head">
-                                    <h3>{part.name}</h3>
+                                    <div className="customer-inventory__card-title-section">
+                                        <h3>{part.name}</h3>
+                                        {isLowStock && <span className="customer-inventory__warning-badge">⚠ Low Stock</span>}
+                                    </div>
                                     <span className={`customer-inventory__status ${stock <= 0 ? 'is-out' : stock <= (part.minStock || 5) ? 'is-low' : 'is-ok'}`}>
                                         {stock <= 0 ? 'Out' : stock <= (part.minStock || 5) ? 'Low' : 'In Stock'}
                                     </span>

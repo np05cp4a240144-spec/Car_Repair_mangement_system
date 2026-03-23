@@ -53,9 +53,13 @@ const addPart = async (req, res) => {
     try {
         const { name, sku, category, stock, minStock, maxStock, unit, price } = req.body;
         
+        const parsedStock = parseInt(stock);
+        const parsedMinStock = minStock ? parseInt(minStock) : 5;
+        const parsedMaxStock = maxStock ? parseInt(maxStock) : parsedStock * 2;
+        
         let status = 'OK';
-        if (stock <= minStock) status = 'Low';
-        if (stock <= 2) status = 'Critical';
+        if (parsedStock <= parsedMinStock) status = 'Low';
+        if (parsedStock <= 2) status = 'Critical';
 
         const part = await prisma.part.create({
             data: {
@@ -63,15 +67,15 @@ const addPart = async (req, res) => {
                 sku,
                 category,
                 price: parseFloat(price) || 0.0,
-                stock: parseInt(stock),
-                minStock: parseInt(minStock),
-                maxStock: parseInt(maxStock),
+                stock: parsedStock,
+                minStock: parsedMinStock,
+                maxStock: parsedMaxStock,
                 unit,
                 status,
                 logs: {
                     create: {
                         type: 'Manual Adjustment',
-                        amount: parseInt(stock),
+                        amount: parsedStock,
                         notes: 'Initial stock on creation',
                         userId: req.user?.id
                     }

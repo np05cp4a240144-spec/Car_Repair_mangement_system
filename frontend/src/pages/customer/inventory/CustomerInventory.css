@@ -152,6 +152,42 @@
   color: #0f172a;
 }
 
+.customer-inventory__card-title-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.customer-inventory__warning-badge {
+  display: inline-block;
+  background: #fef08a;
+  border: 1.5px solid #fbbf24;
+  color: #b45309;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  animation: pulse-alert 2s infinite;
+}
+
+@keyframes pulse-alert {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.customer-inventory__card.is-low-stock-alert {
+  border-color: #fbbf24;
+  background: linear-gradient(180deg, #fffbeb, #fef3c7);
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.15);
+}
+
+.customer-inventory__card.is-low-stock-alert::before {
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+  opacity: 1;
+}
+
 .customer-inventory__status {
   border-radius: 999px;
   font-size: 11px;
