@@ -1,0 +1,321 @@
+/* ============================================================
+   CustomerRating.css
+   ============================================================ */
+
+.cr-page {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.cr-page__header {
+    margin-bottom: 2rem;
+}
+
+.cr-page__title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.35rem;
+}
+
+.cr-page__subtitle {
+    font-size: 0.92rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Error banner */
+.cr-error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Cards grid */
+.cr-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 680px) {
+    .cr-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Rating card */
+.cr-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+}
+
+.cr-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+.cr-card--submitted {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+
+.cr-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.cr-card__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cr-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 0.2rem;
+}
+
+.cr-card__desc {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Stars */
+.cr-stars {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.cr-star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #cbd5e1;
+    transition: color 0.15s, transform 0.1s;
+    line-height: 1;
+}
+
+.cr-star-btn--active {
+    color: #f59e0b;
+}
+
+.cr-star-btn:hover {
+    transform: scale(1.15);
+}
+
+.cr-card__score-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.cr-card__score-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+/* Comment textarea */
+.cr-card__comment {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    resize: vertical;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #f8fafc;
+}
+
+.cr-card__comment:focus {
+    border-color: #3b82f6;
+    background: #fff;
+}
+
+/* Submit button */
+.cr-card__submit {
+    margin-top: 0.85rem;
+    width: 100%;
+    padding: 0.65rem;
+    border: none;
+    border-radius: 8px;
+    background: #3b82f6;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.cr-card__submit:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.cr-card__submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Success state */
+.cr-card__success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.5rem 0;
+    color: #16a34a;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.cr-card__success-icon {
+    color: #22c55e;
+}
+
+/* Past ratings history */
+.cr-history {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.5rem;
+}
+
+.cr-history__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    color: #0f172a;
+}
+
+.cr-history__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.cr-history__loading,
+.cr-history__empty {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    padding: 1.5rem 0;
+}
+
+.cr-history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.cr-history__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    flex-wrap: wrap;
+}
+
+.cr-history__item-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.cr-history__badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+}
+
+.cr-history__badge--admin {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.cr-history__badge--system {
+    background: #fdf4ff;
+    color: #9333ea;
+}
+
+.cr-history__stars {
+    display: flex;
+    gap: 2px;
+}
+
+.cr-star--filled {
+    color: #f59e0b;
+}
+
+.cr-star--empty {
+    color: #cbd5e1;
+}
+
+.cr-history__score-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.cr-history__item-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex: 1;
+    text-align: right;
+}
+
+.cr-history__comment {
+    font-size: 0.85rem;
+    color: #334155;
+    margin: 0;
+    font-style: italic;
+}
+
+.cr-history__date {
+    font-size: 0.775rem;
+    color: #94a3b8;
+}
+
+.cr-card__form {
+    display: flex;
+    flex-direction: column;
+}

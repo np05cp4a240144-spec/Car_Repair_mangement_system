@@ -1,0 +1,214 @@
+/* Updated styles to match mechanic support chat */
+
+/* Sidebar */
+.admin-chat__sidebar {
+  background: #f3f4f6; /* Match mechanic chat background */
+  border-right: 1px solid #d1d5db; /* Match mechanic chat border */
+}
+
+.admin-chat__sidebar-title {
+  background: #1f2937; /* Match mechanic chat title background */
+  color: #f9fafb; /* Match mechanic chat title text color */
+}
+
+/* Active user */
+.admin-chat__active-avatar {
+  background: #3b82f6; /* Match mechanic chat avatar background */
+  color: #ffffff; /* Match mechanic chat avatar text color */
+}
+
+.admin-chat__active-name {
+  color: #111827; /* Match mechanic chat active name color */
+}
+
+.admin-chat__active-subtitle {
+  color: #6b7280; /* Match mechanic chat subtitle color */
+}
+
+/* Message bubbles */
+.admin-chat__msg-bubble--mine {
+  background: #dbeafe; /* Match mechanic chat mine bubble background */
+  color: #1e3a8a; /* Match mechanic chat mine bubble text color */
+}
+
+.admin-chat__msg-bubble--other {
+  background: #f3f4f6; /* Match mechanic chat other bubble background */
+  color: #374151; /* Match mechanic chat other bubble text color */
+}
+
+.admin-chat__msg-bubble--alert {
+  background: #fef3c7; /* Match mechanic chat alert bubble background */
+  border: 1px solid #f59e0b; /* Match mechanic chat alert border */
+  color: #92400e; /* Match mechanic chat alert text color */
+}
+
+.admin-chat {
+  display: flex;
+  height: 100%;
+  animation: adminChatFadeIn 300ms ease;
+}
+
+.admin-chat__sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f3f4f6; /* Match mechanic chat background */
+  border-right: 1px solid #d1d5db; /* Match mechanic chat border */
+  position: relative;
+  z-index: 20;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.admin-chat__sidebar-title {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e2e2de;
+  background: #1f2937; /* Match mechanic chat title background */
+  backdrop-filter: blur(4px);
+  color: #f9fafb; /* Match mechanic chat title text color */
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-chat__threads {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.admin-chat__empty {
+  padding: 1rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.admin-chat__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(244, 244, 242, 0.5);
+}
+
+.admin-chat__topbar {
+  height: 54px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid #e2e2de;
+  background: #fff;
+  z-index: 10;
+}
+
+.admin-chat__active-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-chat__active-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #3b82f6; /* Match mechanic chat avatar background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff; /* Match mechanic chat avatar text color */
+  font-size: 13px;
+  font-weight: 800;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.admin-chat__active-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1c1c1a;
+}
+
+.admin-chat__active-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b6b67;
+}
+
+.admin-chat__solve-btn {
+  border: 1px solid #f59e0b;
+  background: #f59e0b;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.admin-chat__solve-btn:hover:not(:disabled) {
+  background: #ea8a07;
+  transform: translateY(-1px);
+}
+
+.admin-chat__solve-btn:disabled {
+  background: #d1d5db;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.admin-chat__msg-wrap {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.admin-chat__msg-wrap--mine {
+  align-items: flex-end;
+}
+
+.admin-chat__msg-wrap--other {
+  align-items: flex-start;
+}
+
+.admin-chat__msg-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.admin-chat__msg-bubble--mine {
+  background: #dbeafe; /* Match mechanic chat mine bubble background */
+  color: #1e3a8a; /* Match mechanic chat mine bubble text color */
+}
+
+.admin-chat__msg-bubble--other {
+  background: #f3f4f6; /* Match mechanic chat other bubble background */
+  color: #374151; /* Match mechanic chat other bubble text color */
+}
+
+.admin-chat__msg-bubble--alert {
+  background: #fef3c7; /* Match mechanic chat alert bubble background */
+  border: 1px solid #f59e0b; /* Match mechanic chat alert border */
+  color: #92400e; /* Match mechanic chat alert text color */
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.admin-chat__msg-time {
+  font-size: 10px;
+  color: #9e9e9e;
+  margin-top: 4px;
+}

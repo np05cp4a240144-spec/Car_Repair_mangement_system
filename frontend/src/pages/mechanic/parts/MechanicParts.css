@@ -1,0 +1,313 @@
+.mechanic-parts {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  animation: mechanicPartsEnter 300ms ease-out;
+}
+
+.mechanic-parts__container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+.mechanic-parts__loading-wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mechanic-parts__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 4px solid #e85d04;
+  border-top-color: transparent;
+  border-radius: 999px;
+  animation: mechanicPartsSpin 1s linear infinite;
+}
+
+.mechanic-parts__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.mechanic-parts__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1c1c1a;
+  letter-spacing: -0.02em;
+}
+
+.mechanic-parts__subtitle {
+  margin-top: 0.25rem;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b6b67;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mechanic-parts__restock-btn {
+  background: #e85d04;
+  color: #fff;
+  border: 0;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(232, 93, 4, 0.2);
+  transition: all 200ms ease;
+}
+
+.mechanic-parts__restock-btn:hover {
+  background: #d94e00;
+  transform: scale(1.02);
+}
+
+.mechanic-parts__feedback {
+  margin-bottom: 1rem;
+  border: 1px solid #e2e2de;
+  border-radius: 10px;
+  background: #fff;
+  color: #1c1c1a;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0.625rem 0.75rem;
+}
+
+.mechanic-parts__section-label {
+  margin-bottom: 1rem;
+  color: #ababab;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.mechanic-parts__low-stock-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.mechanic-parts__all-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mechanic-parts__card {
+  background: #fff;
+  border: 1.5px solid #e2e2de;
+  border-radius: 20px;
+  padding: 1.25rem;
+  transition: all 200ms ease;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mechanic-parts__card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1c1c1a;
+  margin-bottom: 0.125rem;
+  letter-spacing: -0.01em;
+  transition: color 200ms ease;
+}
+
+.mechanic-parts__card:hover .mechanic-parts__card-title {
+  color: #e85d04;
+}
+
+.mechanic-parts__card-sku {
+  font-size: 10px;
+  font-weight: 700;
+  color: #ababab;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+}
+
+.mechanic-parts__progress-track {
+  height: 5px;
+  background: #f4f4f2;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.mechanic-parts__progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s ease;
+}
+
+.mechanic-parts__progress-fill--dynamic { transition: width 600ms ease; }
+.mechanic-parts__progress-fill--w0 { width: 0%; }
+.mechanic-parts__progress-fill--w5 { width: 5%; }
+.mechanic-parts__progress-fill--w10 { width: 10%; }
+.mechanic-parts__progress-fill--w15 { width: 15%; }
+.mechanic-parts__progress-fill--w20 { width: 20%; }
+.mechanic-parts__progress-fill--w25 { width: 25%; }
+.mechanic-parts__progress-fill--w30 { width: 30%; }
+.mechanic-parts__progress-fill--w35 { width: 35%; }
+.mechanic-parts__progress-fill--w40 { width: 40%; }
+.mechanic-parts__progress-fill--w45 { width: 45%; }
+.mechanic-parts__progress-fill--w50 { width: 50%; }
+.mechanic-parts__progress-fill--w55 { width: 55%; }
+.mechanic-parts__progress-fill--w60 { width: 60%; }
+.mechanic-parts__progress-fill--w65 { width: 65%; }
+.mechanic-parts__progress-fill--w70 { width: 70%; }
+.mechanic-parts__progress-fill--w75 { width: 75%; }
+.mechanic-parts__progress-fill--w80 { width: 80%; }
+.mechanic-parts__progress-fill--w85 { width: 85%; }
+.mechanic-parts__progress-fill--w90 { width: 90%; }
+.mechanic-parts__progress-fill--w95 { width: 95%; }
+.mechanic-parts__progress-fill--w100 { width: 100%; }
+
+.mechanic-parts__progress-fill--15 { width: 15%; }
+.mechanic-parts__progress-fill--28 { width: 28%; }
+.mechanic-parts__progress-fill--45 { width: 45%; }
+.mechanic-parts__progress-fill--50 { width: 50%; }
+.mechanic-parts__progress-fill--60 { width: 60%; }
+.mechanic-parts__progress-fill--72 { width: 72%; }
+.mechanic-parts__progress-fill--85 { width: 85%; }
+.mechanic-parts__progress-fill--90 { width: 90%; }
+
+.mechanic-parts__progress-fill--critical { background: #dc2626; }
+.mechanic-parts__progress-fill--low { background: #d97706; }
+.mechanic-parts__progress-fill--ok { background: #16a34a; }
+
+.mechanic-parts__card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mechanic-parts__count {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+}
+
+.mechanic-parts__count--critical { color: #dc2626; }
+.mechanic-parts__count--low { color: #d97706; }
+.mechanic-parts__count--ok { color: #16a34a; }
+
+.mechanic-parts__unit {
+  margin-top: -0.25rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ababab;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.mechanic-parts__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.mechanic-parts__tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid transparent;
+}
+
+.mechanic-parts__tag--critical {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.mechanic-parts__tag--low {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.mechanic-parts__request-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b6b67;
+  padding: 0.25rem 0.75rem;
+  background: #f4f4f2;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e2de;
+  transition: all 200ms ease;
+}
+
+.mechanic-parts__request-btn:hover {
+  color: #e85d04;
+}
+
+.mechanic-parts__request-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.mechanic-parts__empty {
+  grid-column: 1 / -1;
+  border: 1px dashed #e2e2de;
+  border-radius: 12px;
+  color: #6b6b67;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem;
+  background: #fff;
+}
+
+@media (max-width: 900px) {
+  .mechanic-parts__all-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .mechanic-parts__container {
+    padding: 1.25rem 1rem 5rem;
+  }
+
+  .mechanic-parts__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .mechanic-parts__low-stock-grid,
+  .mechanic-parts__all-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes mechanicPartsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mechanicPartsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

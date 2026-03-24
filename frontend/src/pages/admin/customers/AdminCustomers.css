@@ -1,0 +1,334 @@
+.admin-customers {
+	padding: 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	animation: fadeIn 0.25s ease;
+}
+
+.admin-customers__topbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.admin-customers__count {
+	color: #64748b;
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.admin-customers__search-group {
+	width: 100%;
+	max-width: 220px;
+}
+
+.admin-customers__search-wrap {
+	position: relative;
+}
+
+.admin-customers__search-icon {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #94a3b8;
+	font-size: 12px;
+}
+
+.admin-customers__search-input {
+	width: 100%;
+	border: 1px solid #e2e8f0;
+	border-radius: 0.5rem;
+	background: #fff;
+	color: #1e293b;
+	font-size: 12px;
+	padding: 0.5rem 1rem 0.5rem 2.25rem;
+	outline: none;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.admin-customers__search-input::placeholder {
+	color: #94a3b8;
+}
+
+.admin-customers__search-input:focus {
+	border-color: #f06a00;
+}
+
+.admin-customers__delete-error {
+	border: 1px solid #fecaca;
+	background: #fef2f2;
+	color: #b91c1c;
+	font-size: 12px;
+	font-weight: 600;
+	border-radius: 8px;
+	padding: 0.55rem 0.75rem;
+}
+
+.admin-customers__grid {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	gap: 0.875rem;
+}
+
+.admin-customers__empty {
+	grid-column: 1 / -1;
+	padding: 5rem;
+	text-align: center;
+	color: #64748b;
+	font-size: 13px;
+}
+
+.admin-customers__card {
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	background: #fff;
+	padding: 1rem;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+	cursor: pointer;
+	transition: all 180ms ease;
+}
+
+.admin-customers__card:hover {
+	border-color: #cbd5e1;
+	transform: translateY(-4px);
+}
+
+.admin-customers__card-head {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.admin-customers__delete-btn {
+	margin-left: auto;
+	border: 1px solid #e2e8f0;
+	background: #fff;
+	color: #64748b;
+	border-radius: 6px;
+	padding: 0.25rem 0.55rem;
+	font-size: 11px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 180ms ease;
+}
+
+.admin-customers__delete-btn:hover:not(:disabled) {
+	border-color: #f06a00;
+	color: #f06a00;
+}
+
+.admin-customers__delete-btn:disabled {
+	opacity: 0.65;
+	cursor: not-allowed;
+}
+
+.admin-customers__modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.35);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 50;
+	padding: 1rem;
+}
+
+.admin-customers__modal {
+	width: 100%;
+	max-width: 380px;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+	padding: 1rem;
+}
+
+.admin-customers__modal-title {
+	font-size: 16px;
+	font-weight: 800;
+	color: #0f172a;
+}
+
+.admin-customers__modal-text {
+	margin-top: 0.4rem;
+	font-size: 13px;
+	color: #64748b;
+	line-height: 1.5;
+}
+
+.admin-customers__modal-actions {
+	margin-top: 0.9rem;
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+
+.admin-customers__modal-btn {
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 0.4rem 0.7rem;
+	cursor: pointer;
+	transition: all 180ms ease;
+}
+
+.admin-customers__modal-btn--cancel {
+	border: 1px solid #e2e8f0;
+	background: #fff;
+	color: #64748b;
+}
+
+.admin-customers__modal-btn--cancel:hover:not(:disabled) {
+	border-color: #cbd5e1;
+	color: #334155;
+}
+
+.admin-customers__modal-btn--danger {
+	border: 1px solid #f06a00;
+	background: #f06a00;
+	color: #fff;
+}
+
+.admin-customers__modal-btn--danger:hover:not(:disabled) {
+	filter: brightness(0.97);
+}
+
+.admin-customers__modal-btn:disabled {
+	opacity: 0.7;
+	cursor: not-allowed;
+}
+
+.admin-customers__avatar {
+	width: 42px;
+	height: 42px;
+	border-radius: 999px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f06a00;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 800;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.admin-customers__identity {
+	min-width: 0;
+}
+
+.admin-customers__name {
+	color: #1e293b;
+	font-size: 14px;
+	font-weight: 700;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: color 180ms ease;
+}
+
+.admin-customers__card:hover .admin-customers__name {
+	color: #0f172a;
+}
+
+.admin-customers__email {
+	color: #64748b;
+	font-size: 11px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.admin-customers__metrics {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.5rem;
+	border-top: 1px solid #f1f5f9;
+	padding: 0.75rem 0;
+}
+
+.admin-customers__metric {
+	display: flex;
+	flex-direction: column;
+}
+
+.admin-customers__metric--divider {
+	border-right: 1px solid #f1f5f9;
+}
+
+.admin-customers__metric-value {
+	color: #1e293b;
+	font-size: 15px;
+	font-weight: 700;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.admin-customers__metric-label {
+	margin-top: 2px;
+	color: #94a3b8;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.admin-customers__tags {
+	margin-top: 0.625rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.375rem;
+}
+
+.admin-customers__tag {
+	border: 1px solid #e2e8f0;
+	border-radius: 4px;
+	background: #f8fafc;
+	color: #64748b;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 0.125rem 0.5rem;
+}
+
+.admin-customers__loading {
+	height: 400px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.admin-customers__spinner {
+	width: 2.5rem;
+	height: 2.5rem;
+	border: 4px solid #f06a00;
+	border-top-color: transparent;
+	border-radius: 999px;
+	animation: adminCustomersSpin 1s linear infinite;
+}
+
+@keyframes adminCustomersSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (min-width: 640px) {
+	.admin-customers__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1024px) {
+	.admin-customers__grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1280px) {
+	.admin-customers__grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+

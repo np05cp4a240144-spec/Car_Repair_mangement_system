@@ -1,0 +1,214 @@
+.site-footer {
+  padding: 1.2rem 2% 0;
+  background: transparent;
+}
+
+.site-footer:not(.site-footer--dashboard) {
+  padding: 0;
+}
+
+.site-footer--dashboard {
+  padding: 0.5rem 1.1rem 1rem;
+}
+
+.site-footer--dashboard .site-footer__container {
+  max-width: 800px;
+  width: min(100%, 800px);
+  margin: 0 auto;
+  border-radius: 16px;
+}
+
+.site-footer__container {
+  max-width: 72rem;
+  margin: 0 auto;
+  border: 1px solid #dbe5f1;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% -10%, rgba(249, 115, 22, 0.18), transparent 38%),
+    radial-gradient(circle at 90% 120%, rgba(14, 165, 233, 0.2), transparent 40%),
+    linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 24px 44px rgba(15, 23, 42, 0.1);
+  padding: 1.6rem 1.8rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.site-footer:not(.site-footer--dashboard) .site-footer__container {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+  padding: 1.8rem 4% 1rem;
+}
+
+.site-footer__container::before {
+  content: '';
+  position: absolute;
+  left: -120px;
+  top: -120px;
+  width: 260px;
+  height: 260px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(251, 146, 60, 0.18), transparent 68%);
+  pointer-events: none;
+}
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer__brand-col {
+  max-width: 32rem;
+}
+
+.site-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.site-footer__brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f4500a, #fb923c);
+  box-shadow: 0 0 0 4px rgba(244, 80, 10, 0.12);
+}
+
+.site-footer__about {
+  font-size: 0.95rem;
+  line-height: 1.72;
+  color: #475569;
+}
+
+.site-footer__pill-row {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.site-footer__pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9a3412;
+  background: #fff0e3;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 0.3rem 0.62rem;
+}
+
+.site-footer__section-title {
+  margin: 0.1rem 0 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.site-footer__list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.site-footer__link {
+  font-size: 0.94rem;
+  color: #334155;
+  font-weight: 700;
+  transition: all 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+}
+
+.site-footer__link:hover {
+  color: #ea580c;
+  transform: translateX(2px);
+}
+
+.site-footer__link--muted {
+  color: #64748b;
+  transform: none;
+}
+
+.site-footer__bottom {
+  padding-top: 1rem;
+  border-top: 1px solid #dbe5f1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #5b6b80;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 640px) {
+  .site-footer__grid {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    align-items: start;
+  }
+}
+
+@media (min-width: 980px) {
+  .site-footer__grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .site-footer__bottom {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 680px) {
+  .site-footer {
+    padding: 1rem 0.5rem 0;
+  }
+
+  .site-footer:not(.site-footer--dashboard) {
+    padding: 0;
+  }
+
+  .site-footer:not(.site-footer--dashboard) .site-footer__container {
+    border-radius: 0;
+    padding: 1.15rem 1rem 0.8rem;
+  }
+
+  .site-footer__container {
+    border-radius: 16px;
+    padding: 1.1rem 0.9rem 0.8rem;
+  }
+
+  .site-footer__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-footer__brand {
+    font-size: 1.6rem;
+  }
+
+  .site-footer__about,
+  .site-footer__link {
+    font-size: 0.92rem;
+  }
+}

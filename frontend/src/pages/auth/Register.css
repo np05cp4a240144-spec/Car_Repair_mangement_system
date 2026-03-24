@@ -1,0 +1,256 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.register-page__left {
+  display: none;
+  width: 50%;
+  background: #f9fafb;
+  padding: 4rem;
+  position: relative;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.register-page__blob {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(244, 80, 10, 0.05);
+  filter: blur(48px);
+}
+
+.register-page__blob--top {
+  top: 0;
+  right: 0;
+  width: 24rem;
+  height: 24rem;
+  transform: translate(50%, -50%);
+}
+
+.register-page__blob--bottom {
+  bottom: 0;
+  left: 0;
+  width: 16rem;
+  height: 16rem;
+  transform: translate(-50%, 50%);
+}
+
+.register-page__left-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 28rem;
+}
+
+.register-page__eyebrow {
+  margin-bottom: 1rem;
+  color: var(--brand, #f4500a);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.register-page__title {
+  margin-bottom: 1.5rem;
+  color: #111827;
+  font-size: clamp(2.5rem, 4vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.register-page__title-accent {
+  color: var(--brand, #f4500a);
+}
+
+.register-page__intro {
+  color: #6b7280;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.register-page__right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #fff;
+}
+
+.register-page__form-wrap {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.register-page__header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.register-page__heading {
+  margin-bottom: 0.5rem;
+  color: #111827;
+  font-size: 1.875rem;
+  font-weight: 900;
+}
+
+.register-page__subtext {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.register-page__inline-link,
+.register-page__legal-link {
+  color: var(--brand, #f4500a);
+  font-weight: 700;
+}
+
+.register-page__inline-link:hover,
+.register-page__legal-link:hover {
+  text-decoration: underline;
+}
+
+.register-page__form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.register-page__error {
+  padding: 1rem;
+  border: 1px solid #fee2e2;
+  border-radius: 0.75rem;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.register-page__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.register-page__label--caps {
+  padding: 0 0.25rem;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.register-page__input-wrap {
+  position: relative;
+}
+
+.register-page__input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.register-page__input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  padding: 0.875rem 0.875rem 0.875rem 3rem;
+  font-size: 14px;
+  outline: none;
+  transition: all 200ms ease;
+}
+
+.register-page__input:focus {
+  border-color: var(--brand, #f4500a);
+  box-shadow: 0 0 0 4px rgba(244, 80, 10, 0.05);
+}
+
+.register-page__submit-wrap {
+  padding-top: 1rem;
+}
+
+.register-page__submit-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--brand, #f4500a);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 16px 28px rgba(244, 80, 10, 0.2);
+  transition: all 200ms ease;
+}
+
+.register-page__submit-btn:hover {
+  background: var(--brand-light, #ff6b2b);
+  transform: translateY(-1px);
+}
+
+.register-page__submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.register-page__spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0 auto;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 999px;
+  animation: registerSpin 1s linear infinite;
+}
+
+.register__legal-copy {
+  margin-top: 1.5rem;
+  color: #9ca3af;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.6;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .register-page {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 1024px) {
+  .register-page__left {
+    display: flex;
+  }
+
+  .register-page__right {
+    padding: 4rem;
+  }
+
+  .register-page__header {
+    text-align: left;
+  }
+}
+
+@media (min-width: 1024px) {
+  .register__legal-copy {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@keyframes registerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
