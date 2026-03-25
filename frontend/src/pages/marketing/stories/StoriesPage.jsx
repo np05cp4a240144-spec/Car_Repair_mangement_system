@@ -6,12 +6,12 @@ const StoriesPage = () => {
     <MarketingInfoPage
       eyebrow="Customer Stories"
       title="How garages use Auto Assist"
-      intro="Different workshop sizes use the platform in different ways, but all of them gain visibility and speed."
+      intro="Workshops of different sizes use the same platform structure and gain clearer visibility across operations."
       sections={[
-        { title: 'Independent Workshop', text: 'A 4-person team replaced manual phone follow-ups with in-app status tracking and reduced missed updates.' },
-        { title: 'Growing Service Center', text: 'A multi-bay garage used appointment planning and dashboard reporting to improve daily job throughput.' },
-        { title: 'Parts-Heavy Operations', text: 'A shop with frequent parts usage improved stock control and avoided service delays from stockouts.' },
-        { title: 'Customer Communication', text: 'Support chat reduced repetitive calls by giving customers direct access to updates and clarifications.' }
+        { title: 'Independent Workshop', text: 'A small team used booking timelines and mechanic updates to reduce manual status calls to customers.' },
+        { title: 'Growing Service Center', text: 'A multi-bay garage improved daily scheduling by assigning jobs and tracking pending work from one dashboard.' },
+        { title: 'Parts-Focused Repair Shop', text: 'Inventory-linked job parts helped prevent stock surprises and reduced repair delays caused by unavailable items.' },
+        { title: 'Billing and Communication', text: 'Invoice visibility, payment tracking, and support messaging reduced confusion at handover time.' }
       ]}
     />
   );

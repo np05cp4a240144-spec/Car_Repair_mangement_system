@@ -26,7 +26,7 @@ const MarketingInfoPage = ({ eyebrow, title, intro, sections = [] }) => {
               </div>
 
               <div className="marketing-info-page__actions">
-                <Link to="/register" className="marketing-info-page__btn marketing-info-page__btn--primary">Start Free Trial</Link>
+                <Link to="/register" className="marketing-info-page__btn marketing-info-page__btn--primary">Create Service Account</Link>
                 <Link to="/login" className="marketing-info-page__btn marketing-info-page__btn--ghost">Dashboard Login</Link>
               </div>
             </div>

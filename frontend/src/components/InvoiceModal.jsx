@@ -88,7 +88,7 @@ const InvoiceModal = ({ isOpen, onClose, invoice }) => {
                 </div>
                 <div class="signature"><div class="signature-box">Authorized Signature</div></div>
                 <div class="footer">
-                    Thank you for choosing Auto Assist. For queries, contact us at info@autoassist.com<br/>
+                    Thank you for choosing Auto Assist. For queries, contact us at support@autoassist.com<br/>
                     <span style="font-size:13px;">This is a system-generated invoice.</span>
                 </div>
             </div>

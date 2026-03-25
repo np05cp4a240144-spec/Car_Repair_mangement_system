@@ -6,12 +6,12 @@ const AboutPage = () => {
     <MarketingInfoPage
       eyebrow="About"
       title="Built for real garage operations"
-      intro="Auto Assist was created to reduce manual coordination and make garage workflows predictable, traceable, and faster."
+      intro="Auto Assist was built to replace scattered calls, notes, and spreadsheets with one structured service management system."
       sections={[
-        { title: 'Mission', text: 'Help auto service businesses run with less paperwork and better visibility from booking to handover.' },
-        { title: 'Approach', text: 'Combine practical operations tools with a clean user experience for admins, mechanics, and customers.' },
-        { title: 'Focus', text: 'We prioritize reliability, clear records, and communication so shops can serve more customers with confidence.' },
-        { title: 'Product Direction', text: 'We continue improving automation, reporting, and integrations based on real usage feedback.' }
+        { title: 'Mission', text: 'Help service centers run faster with transparent records from appointment booking to final payment.' },
+        { title: 'Approach', text: 'Design role-based workflows for admins, mechanics, and customers without adding unnecessary complexity.' },
+        { title: 'Focus', text: 'Prioritize accurate status tracking, inventory clarity, invoice reliability, and support responsiveness.' },
+        { title: 'Product Direction', text: 'Continue improving assignment automation, reporting quality, and communication flows based on workshop feedback.' }
       ]}
     />
   );

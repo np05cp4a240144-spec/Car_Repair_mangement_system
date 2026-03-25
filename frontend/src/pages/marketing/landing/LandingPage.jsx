@@ -56,29 +56,29 @@ const LandingPage = () => {
                         </div>
 
                         <h1 className="landing-hero__title">
-                            Garage Operations,<br />
-                            <em>Made Clear and Fast.</em>
+                            Complete Garage Management,<br />
+                            <em>From Booking to Billing.</em>
                         </h1>
 
                         <p className="landing-hero__desc">
-                            The landing page is now concise. Use dedicated pages for features, roles, company details, updates, and support.
+                            Auto Assist connects appointments, mechanic assignments, parts inventory, invoices, payments, ratings, and customer support in one system.
                         </p>
 
                         <div className="landing-hero__cta-row">
                             <button onClick={() => navigate('/register')} className="landing-btn landing-btn--primary">
-                                Get Started Free
+                                Create Service Account
                             </button>
                             <button onClick={() => navigate('/features')} className="landing-btn landing-btn--outline">
-                                Explore Features <ArrowRight size={20} />
+                                View System Modules <ArrowRight size={20} />
                             </button>
                         </div>
 
                         <div className="landing-hero__stats">
                             {[
-                                { num: '6', label: 'Dedicated Info Pages' },
-                                { num: '3', label: 'Role Dashboards' },
-                                { num: '1', label: 'Connected Platform' },
-                                { num: '24/7', label: 'Always Accessible' }
+                                { num: '7+', label: 'Core Service Modules' },
+                                { num: '3', label: 'Role-Based Dashboards' },
+                                { num: '1', label: 'Integrated Garage System' },
+                                { num: '24/7', label: 'Realtime Access & Updates' }
                             ].map((stat) => (
                                 <div key={stat.label} className="landing-stat">
                                     <div className="landing-stat__num">{stat.num}</div>
@@ -93,9 +93,9 @@ const LandingPage = () => {
                     <div className="landing-container">
                         <div className="landing-section__head">
                             <div className="landing-section__eyebrow">Quick Navigation</div>
-                            <h2 className="landing-section__title">Choose what you want to read.</h2>
-                            <p className="landing-section__subtitle">Instead of one long page, each topic now has its own dedicated page.</p>
-                            <p className="landing-section__mini">Clean structure, clear pages, faster navigation.</p>
+                            <h2 className="landing-section__title">Explore your workflow pages.</h2>
+                            <p className="landing-section__subtitle">Open focused pages for platform modules, user roles, product updates, and support guidance.</p>
+                            <p className="landing-section__mini">Faster navigation for admins, mechanics, and customers.</p>
                         </div>
 
                         <div className="landing-page-link-grid">
@@ -120,7 +120,7 @@ const LandingPage = () => {
                     <div className="landing-container landing-container--preview">
                         <div className="landing-section__head">
                             <div className="landing-section__eyebrow">Platform Preview</div>
-                            <h2 className="landing-section__title">A dashboard that makes sense.</h2>
+                            <h2 className="landing-section__title">A dashboard built for daily garage work.</h2>
                         </div>
 
                         <div className="landing-preview" ref={chartRef}>
@@ -189,7 +189,7 @@ const LandingPage = () => {
                     <div className="landing-container">
                         <div className="landing-section__head">
                             <div className="landing-section__eyebrow">More Information</div>
-                            <h2 className="landing-section__title">Company and update pages</h2>
+                            <h2 className="landing-section__title">Company updates and platform news</h2>
                         </div>
 
                         <div className="landing-page-link-grid landing-page-link-grid--two">
@@ -212,11 +212,11 @@ const LandingPage = () => {
                 <section className="landing-cta">
                     <div className="landing-cta__radial"></div>
                     <div className="landing-cta__content">
-                        <h2 className="landing-cta__title">Ready to modernize<br />your garage?</h2>
-                        <p className="landing-cta__text">Start with a focused system and navigate details page by page.</p>
+                        <h2 className="landing-cta__title">Ready to streamline<br />your service center?</h2>
+                        <p className="landing-cta__text">Run bookings, repairs, parts, billing, and customer communication from one connected platform.</p>
                         <div className="landing-cta__actions">
                             <button onClick={() => navigate('/register')} className="landing-btn landing-btn--primary landing-btn--cta">
-                                Start Your Free Trial
+                                Start Managing Operations
                             </button>
                             <button onClick={() => navigate('/login')} className="landing-btn landing-btn--dark">
                                 Dashboard Login

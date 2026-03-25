@@ -5,15 +5,15 @@ const FeaturesPage = () => {
   return (
     <MarketingInfoPage
       eyebrow="Product Features"
-      title="Everything needed to run a modern garage"
-      intro="Auto Assist modules are connected from booking to payment, so your team can work from one shared operational system."
+      title="Core modules for complete service operations"
+      intro="Auto Assist keeps booking, repair progress, parts control, invoicing, and payment records connected in one daily workflow."
       sections={[
-        { title: 'Appointment Management', text: 'Create, update, and track appointments with service details, customer details, and vehicle records in one timeline.' },
-        { title: 'Job Progress Tracking', text: 'Mechanics can update status in real time so admins and customers always see accurate progress.' },
-        { title: 'Inventory and Parts', text: 'Track stock levels, monitor low-stock alerts, and deduct parts from inventory as jobs are completed.' },
-        { title: 'Payments and Invoices', text: 'Support online payment flow and generate invoice records for both service and parts transactions.' },
-        { title: 'Role-Based Dashboards', text: 'Admins, mechanics, and customers each get focused screens with only the tools they need.' },
-        { title: 'Integrated Support Chat', text: 'Built-in messaging helps resolve support questions faster without leaving the platform.' }
+        { title: 'Appointment and Vehicle Records', text: 'Register customer bookings with vehicle details, service notes, and schedule timelines in one place.' },
+        { title: 'Mechanic Assignment and Updates', text: 'Assign work to mechanics and track job status updates in real time from pending to completed.' },
+        { title: 'Inventory and Parts Usage', text: 'Manage stock, low-stock alerts, and part deduction directly from active repair jobs.' },
+        { title: 'Invoices, Tax, and Discounts', text: 'Generate invoice summaries with labor, parts, VAT, and discount values stored as clear records.' },
+        { title: 'Payments and Pending Parts Flow', text: 'Track payment status for service and parts, including pending parts settlement workflows.' },
+        { title: 'Ratings and Support Messages', text: 'Capture service ratings and resolve customer questions through built-in messaging.' }
       ]}
     />
   );

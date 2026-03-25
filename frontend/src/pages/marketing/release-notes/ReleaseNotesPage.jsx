@@ -5,13 +5,13 @@ const ReleaseNotesPage = () => {
   return (
     <MarketingInfoPage
       eyebrow="Release Notes"
-      title="Recent platform updates"
-      intro="A quick summary of recently completed improvements across the product experience."
+      title="Recent system updates"
+      intro="A summary of operational improvements across booking, workshop flow, billing, and customer experience."
       sections={[
-        { title: 'Role-Based Page Structure', text: 'Refactored frontend pages into cleaner feature folders for admin, customer, and mechanic modules.' },
-        { title: 'Payment Flow Improvements', text: 'Improved parts payment verification path and post-payment inventory update behavior.' },
-        { title: 'Support Chat Enhancements', text: 'Added support message routes and admin support chat experience for quicker issue handling.' },
-        { title: 'Landing and Marketing Refresh', text: 'Updated landing page visuals and created dedicated information pages linked from footer navigation.' }
+        { title: 'Mechanic Assignment Workflow', text: 'Improved appointment-to-mechanic assignment handling for clearer responsibility and faster job progression.' },
+        { title: 'Invoice Calculation Updates', text: 'Added stronger invoice handling for discounts, tax values, and pending parts payment scenarios.' },
+        { title: 'Service Rating Improvements', text: 'Extended rating support so customer feedback can be recorded directly after service completion.' },
+        { title: 'Marketing and Help Content Refresh', text: 'Revised landing-linked pages with clearer system-focused content for features, roles, updates, and support.' }
       ]}
     />
   );

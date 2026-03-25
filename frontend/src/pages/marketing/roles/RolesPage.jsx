@@ -6,12 +6,12 @@ const RolesPage = () => {
     <MarketingInfoPage
       eyebrow="Who It Is For"
       title="Three roles, one workflow"
-      intro="Auto Assist is designed so every user type works in the same system with role-specific views and permissions."
+      intro="Each role works in one connected platform with the permissions and tools needed for daily garage operations."
       sections={[
-        { title: 'Admin', text: 'Manage appointments, customers, staff performance, inventory, revenue, and support from one command center.' },
-        { title: 'Mechanic', text: 'Access assigned jobs, update work status, request parts, and communicate through chat for faster turnaround.' },
-        { title: 'Customer', text: 'Book services, track repair status, view history, make payments, and receive updates in one place.' },
-        { title: 'Shared Data Flow', text: 'When one role updates a record, the right users see it immediately to reduce miscommunication.' }
+        { title: 'Admin', text: 'Control appointments, mechanic assignments, inventory levels, invoices, payment status, and support handling from one dashboard.' },
+        { title: 'Mechanic', text: 'View assigned jobs, update repair progress, and confirm parts usage so billing and status remain accurate.' },
+        { title: 'Customer', text: 'Book service, check progress, review invoices, complete payments, and submit ratings after service completion.' },
+        { title: 'Shared Data Flow', text: 'Updates from one role are reflected across related screens to reduce delays and communication gaps.' }
       ]}
     />
   );
